@@ -1,4 +1,4 @@
-import { StartPage } from "./pages/startPage";
+import  StartPage  from "./pages/startPage";
 
 export default function Index() {
   return (

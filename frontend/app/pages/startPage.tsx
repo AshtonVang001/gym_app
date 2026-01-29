@@ -1,11 +1,13 @@
 import { Text, TextInput, View } from "react-native";
-import { CreateAccountBox } from "../components/createAccount"
+import CreateAccountBox from "../components/createAccount";
 
 
-export const StartPage = () => {
+const StartPage = () => {
     return (
         <View>
             <CreateAccountBox />
         </View>
     )
 }
+
+export default StartPage;

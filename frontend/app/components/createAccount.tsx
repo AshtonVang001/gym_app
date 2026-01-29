@@ -3,7 +3,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useState } from "react";
 
 
-export const CreateAccountBox = () => {
+const CreateAccountBox = () => {
     return (
         <View
             style={{
@@ -14,8 +14,10 @@ export const CreateAccountBox = () => {
         >
             <TextInput
                 placeholder="enter texts"
-                style={{ borderWidth: 1, height: 40, width: 200 }}
+                style={{ borderWidth: 1, height: 40, width: 200, margin:100}}
             />
         </View>
     );
 }
+
+export default CreateAccountBox;
