@@ -8,6 +8,24 @@ const CreateAccountBox = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
+    const handleSumbit = async () => {
+        const res = await fetch("/create-account", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                username: username,
+                email: email,
+                password: password
+            })
+        })
+
+        const data = res.json();
+        console.log("Response from backend", data);
+
+    }
+
     return (
         <View
             style={{
@@ -88,6 +106,7 @@ const CreateAccountBox = () => {
                 <Pressable
                     onPress={() => {
                         console.log("Creating account with:", { username, email, password });
+                        handleSumbit();
                     }}
                     style={({ pressed }) => ({
                         backgroundColor: pressed ? "#0056b3" : "#007bff",
