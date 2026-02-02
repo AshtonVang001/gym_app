@@ -1,4 +1,4 @@
-import { Text, TextInput, View } from "react-native";
+import { Text, TextInput, View, Pressable } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useState } from "react";
 
@@ -36,6 +36,7 @@ const CreateAccountBox = () => {
 
                 <TextInput
                     placeholder="Username"
+                    placeholderTextColor="#999"
                     value={username}
                     onChangeText={setUsername}
                     style={{
@@ -51,6 +52,7 @@ const CreateAccountBox = () => {
 
                 <TextInput
                     placeholder="Email"
+                    placeholderTextColor="#999"
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
@@ -68,6 +70,7 @@ const CreateAccountBox = () => {
 
                 <TextInput
                     placeholder="Password"
+                    placeholderTextColor="#999"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
@@ -81,6 +84,24 @@ const CreateAccountBox = () => {
                         fontSize: 16,
                     }}
                 />
+
+                <Pressable
+                    onPress={() => {
+                        console.log("Creating account with:", { username, email, password });
+                    }}
+                    style={({ pressed }) => ({
+                        backgroundColor: pressed ? "#0056b3" : "#007bff",
+                        borderRadius: 5,
+                        height: 50,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        marginTop: 10,
+                    })}
+                >
+                    <Text style={{ color: "#fff", fontSize: 18, fontWeight: "600" }}>
+                        Enter
+                    </Text>
+                </Pressable>
             </View>
         </View>
     );
