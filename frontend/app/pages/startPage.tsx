@@ -1,12 +1,12 @@
-import { Text, TextInput, View } from "react-native";
+import { ScrollView } from "react-native";
 import CreateAccountBox from "../components/createAccount";
 
 
 const StartPage = () => {
     return (
-        <View>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
             <CreateAccountBox />
-        </View>
+        </ScrollView>
     )
 }
 
