@@ -19,7 +19,7 @@ app.post("/create-account", async (c) => {
 
     const user =
       await dbConfig`INSERT INTO users (username, email, password, role, email_verified, status, profile_completed, refresh_token)
-                VALUES (${username}, ${email}, ${hashedPassowrd}, 'user', ${false}, 'online', 'test')
+                VALUES (${username}, ${email}, ${hashedPassowrd}, 'user', ${false}, 'online', ${false}, 'test')
                 RETURNING id, username, email, created_at`;
 
     if (user.length > 0) {
