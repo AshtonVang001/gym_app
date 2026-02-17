@@ -17,6 +17,7 @@ app.post("/create-account", async (c) => {
 
     //insert into db here
 
+    //fix this later rn some of the columns are not the correct data - like online status and what not
     const user =
       await dbConfig`INSERT INTO users (username, email, password, role, email_verified, status, profile_completed, refresh_token)
                 VALUES (${username}, ${email}, ${hashedPassowrd}, 'user', ${false}, 'online', ${false}, 'test')
