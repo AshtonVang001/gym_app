@@ -9,7 +9,7 @@ const CreateAccountBox = () => {
     const [password, setPassword] = useState("");
 
     const handleSumbit = async () => {
-        const res = await fetch("/create-account", {
+        const res = await fetch("http://localhost:3000/create-account", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -21,7 +21,7 @@ const CreateAccountBox = () => {
             })
         })
 
-        const data = res.json();
+        const data = await res.json();
         console.log("Response from backend", data);
 
     }

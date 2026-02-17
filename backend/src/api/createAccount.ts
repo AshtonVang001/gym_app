@@ -1,4 +1,4 @@
-import { app } from "../index.js";
+import { app } from "../app.js";
 import { dbConfig } from "./dbconnect.js";
 import * as bcrypt from "bcrypt";
 import "dotenv/config";
@@ -6,11 +6,12 @@ import "dotenv/config";
 //hash password
 //user will enter username, email, and password
 
-app.post("create-account", async (c) => {
+app.post("/create-account", async (c) => {
   const saltRounds = 10;
 
   try {
     const { username, email, password } = await c.req.json();
+    console.log(username);
 
     const hashedPassowrd = await bcrypt.hash(password, saltRounds);
 
@@ -18,7 +19,7 @@ app.post("create-account", async (c) => {
 
     const user =
       await dbConfig`INSERT INTO users (username, email, password, role, email_verified, status, profile_completed, refresh_token)
-                VALUES (${username}, ${email}, ${hashedPassowrd}, user, ${false}, online, test)
+                VALUES (${username}, ${email}, ${hashedPassowrd}, 'user', ${false}, 'online', 'test')
                 RETURNING id, username, email, created_at`;
 
     if (user.length > 0) {
@@ -26,7 +27,7 @@ app.post("create-account", async (c) => {
         {
           success: true,
           message: "Account created successfully!",
-          data: user[0],
+          data: user,
         },
         201,
       );
