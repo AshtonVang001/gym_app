@@ -1,5 +1,5 @@
 import { ScrollView } from "react-native";
-import CreateAccountBox from "../components/createAccount";
+import CreateAccountBox from "../../components/createAccount";
 
 
 const StartPage = () => {
