@@ -15,6 +15,16 @@ app.post("/create-account", async (c) => {
 
     const hashedPassowrd = await bcrypt.hash(password, saltRounds);
 
+    if (!username?.trim() || !email?.trim() || !password?.trim()) {
+      return c.json(
+        {
+          success: false,
+          message: "Username, email, and password are required.",
+        },
+        400,
+      );
+    }
+
     //insert into db here
 
     //fix this later rn some of the columns are not the correct data - like online status and what not
@@ -23,24 +33,14 @@ app.post("/create-account", async (c) => {
                 VALUES (${username}, ${email}, ${hashedPassowrd}, 'user', ${false}, 'online', ${false}, 'test')
                 RETURNING id, username, email, created_at`;
 
-    if (user.length > 0) {
-      return c.json(
-        {
-          success: true,
-          message: "Account created successfully!",
-          data: user,
-        },
-        201,
-      );
-    } else {
-      return c.json(
-        {
-          success: false,
-          message: "Account creation failed",
-        },
-        400,
-      );
-    }
+    return c.json(
+      {
+        success: true,
+        message: "Account created successfully!",
+        data: user,
+      },
+      201,
+    );
   } catch (error) {
     console.error("Error createding account: ", error);
     return c.json(
