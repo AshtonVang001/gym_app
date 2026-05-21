@@ -1,5 +1,6 @@
 import { Text, TextInput, View, Pressable } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { router } from "expo-router";
 import { useState } from "react";
 
 
@@ -22,6 +23,9 @@ const CreateAccountBox = () => {
         })
 
         const data = await res.json();
+        if(data.success){
+            router.push("/pages/dashboard")
+        }
         console.log("Response from backend", data);
 
     }
