@@ -1,11 +1,11 @@
 import { ScrollView } from "react-native";
-import CreateAccountBox from "../../components/createAccount";
+import LoginForm from "@/components/signIn";
 
 
 const StartPage = () => {
     return (
         <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            <CreateAccountBox />
+            <LoginForm />
         </ScrollView>
     )
 }

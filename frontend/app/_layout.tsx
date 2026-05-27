@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
 
 export default function RootLayout() {
-  return <Stack screenOptions={{ title: "Create Account" }} />;
+  return <Stack screenOptions={{ title: "Gym App" }} />;
 }
