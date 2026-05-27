@@ -1,15 +1,13 @@
-import { Text, TextInput, View, Pressable } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Text, TextInput, View, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { useState } from "react";
-
 
 const CreateAccountBox = () => {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleSumbit = async () => {
+    const handleSubmit = async () => {
         const res = await fetch("http://localhost:3000/create-account", {
             method: "POST",
             headers: {
@@ -18,116 +16,180 @@ const CreateAccountBox = () => {
             body: JSON.stringify({
                 username: username,
                 email: email,
-                password: password
-            })
-        })
+                password: password,
+            }),
+        });
 
         const data = await res.json();
-        if(data.success){
-            router.push("/pages/dashboard")
+        if (data.success) {
+            router.push("/pages/dashboard");
         }
         console.log("Response from backend", data);
-
-    }
+    };
 
     return (
-        <View
-            style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                paddingVertical: 20,
-            }}
-        >
-            <View
-                style={{
-                    backgroundColor: "#fff",
-                    padding: 20,
-                    borderRadius: 10,
-                    shadowColor: "#000",
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 3.84,
-                    elevation: 5,
-                    width: 300,
-                }}
-            >
-                <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 20, textAlign: "center" }}>
-                    Create Account
-                </Text>
+        <View style={styles.form}>
+            <View style={styles.flexColumn}>
+                <Text style={styles.label}>Username</Text>
+            </View>
 
+            <View style={styles.inputForm}>
                 <TextInput
-                    placeholder="Username"
+                    style={styles.input}
+                    placeholder="Enter your Username"
                     placeholderTextColor="#999"
                     value={username}
                     onChangeText={setUsername}
-                    style={{
-                        borderWidth: 1,
-                        borderColor: "#ddd",
-                        borderRadius: 5,
-                        height: 50,
-                        paddingHorizontal: 15,
-                        marginBottom: 15,
-                        fontSize: 16,
-                    }}
+                    autoCapitalize="none"
                 />
+            </View>
 
+            <View style={styles.flexColumn}>
+                <Text style={styles.label}>Email</Text>
+            </View>
+
+            <View style={styles.inputForm}>
                 <TextInput
-                    placeholder="Email"
+                    style={styles.input}
+                    placeholder="Enter your Email"
                     placeholderTextColor="#999"
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
                     autoCapitalize="none"
-                    style={{
-                        borderWidth: 1,
-                        borderColor: "#ddd",
-                        borderRadius: 5,
-                        height: 50,
-                        paddingHorizontal: 15,
-                        marginBottom: 15,
-                        fontSize: 16,
-                    }}
                 />
+            </View>
 
+            <View style={styles.flexColumn}>
+                <Text style={styles.label}>Password</Text>
+            </View>
+
+            <View style={styles.inputForm}>
                 <TextInput
-                    placeholder="Password"
+                    style={styles.input}
+                    placeholder="Enter your Password"
                     placeholderTextColor="#999"
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry
-                    style={{
-                        borderWidth: 1,
-                        borderColor: "#ddd",
-                        borderRadius: 5,
-                        height: 50,
-                        paddingHorizontal: 15,
-                        marginBottom: 15,
-                        fontSize: 16,
-                    }}
                 />
+            </View>
 
-                <Pressable
-                    onPress={() => {
-                        console.log("Creating account with:", { username, email, password });
-                        handleSumbit();
-                    }}
-                    style={({ pressed }) => ({
-                        backgroundColor: pressed ? "#0056b3" : "#007bff",
-                        borderRadius: 5,
-                        height: 50,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        marginTop: 10,
-                    })}
-                >
-                    <Text style={{ color: "#fff", fontSize: 18, fontWeight: "600" }}>
-                        Enter
-                    </Text>
+            <Pressable style={styles.submitButton} onPress={handleSubmit}>
+                <Text style={styles.submitText}>Create Account</Text>
+            </Pressable>
+
+            <Text style={styles.p}>
+                Already have an account?{" "}
+                <Pressable onPress={() => router.push("/pages/startPage")}>
+                    <Text style={styles.span}>Sign In</Text>
+                </Pressable>
+            </Text>
+
+            <Text style={styles.p}>Or With</Text>
+
+            <View style={styles.flexRow}>
+                <Pressable style={styles.btn}>
+                    <Text style={styles.btnText}>Google</Text>
+                </Pressable>
+
+                <Pressable style={styles.btn}>
+                    <Text style={styles.btnText}>Apple</Text>
                 </Pressable>
             </View>
         </View>
     );
-}
+};
 
 export default CreateAccountBox;
+
+const styles = StyleSheet.create({
+    form: {
+        flexDirection: "column",
+        gap: 10,
+        backgroundColor: "#ffffff",
+        padding: 30,
+        width: "100%",
+        maxWidth: 450,
+        borderRadius: 20,
+    },
+
+    flexColumn: {
+        flexDirection: "column",
+    },
+
+    label: {
+        color: "#151717",
+        fontWeight: "600",
+    },
+
+    inputForm: {
+        borderWidth: 1.5,
+        borderColor: "#ecedec",
+        borderRadius: 10,
+        height: 50,
+        flexDirection: "row",
+        alignItems: "center",
+        paddingLeft: 10,
+    },
+
+    input: {
+        marginLeft: 10,
+        borderRadius: 10,
+        width: "85%",
+        height: "100%",
+    },
+
+    flexRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 10,
+        justifyContent: "space-between",
+    },
+
+    span: {
+        fontSize: 14,
+        color: "#2d79f3",
+        fontWeight: "500",
+    },
+
+    submitButton: {
+        marginTop: 20,
+        marginBottom: 10,
+        backgroundColor: "#151717",
+        borderRadius: 10,
+        height: 50,
+        width: "100%",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+
+    submitText: {
+        color: "white",
+        fontSize: 15,
+        fontWeight: "500",
+    },
+
+    p: {
+        textAlign: "center",
+        color: "black",
+        fontSize: 14,
+        marginVertical: 5,
+    },
+
+    btn: {
+        marginTop: 10,
+        width: "48%",
+        height: 50,
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center",
+        borderWidth: 1,
+        borderColor: "#ededef",
+        backgroundColor: "white",
+    },
+
+    btnText: {
+        fontWeight: "500",
+    },
+});
