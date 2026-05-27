@@ -8,7 +8,7 @@ const CreateAccountBox = () => {
     const [password, setPassword] = useState("");
 
     const handleSubmit = async () => {
-        const res = await fetch("http://localhost:3000/create-account", {
+        const res = await fetch("http://localhost:3000/auth/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

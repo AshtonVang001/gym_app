@@ -6,7 +6,7 @@ import "dotenv/config";
 //hash password
 //user will enter username, email, and password
 
-app.post("/create-account", async (c) => {
+app.post("/auth/register", async (c) => {
   const saltRounds = 10;
 
   try {
