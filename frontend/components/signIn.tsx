@@ -1,7 +1,30 @@
 import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
+import { useState } from "react";
 
 export default function LoginForm() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSumbit = async () => {
+    const res = await fetch("http://localhost:3000/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password,
+      }),
+    });
+    console.log(res.body);
+    const data = await res.json();
+    if (data.success) {
+      router.push("/pages/dashboard");
+    }
+    console.log("Response from backend", data);
+  };
+
   return (
     <View style={styles.form}>
       <View style={styles.flexColumn}>
@@ -13,6 +36,8 @@ export default function LoginForm() {
           style={styles.input}
           placeholder="Enter your Email"
           placeholderTextColor="#999"
+          value={email}
+          onChangeText={setEmail}
         />
       </View>
 
@@ -26,6 +51,8 @@ export default function LoginForm() {
           placeholder="Enter your Password"
           placeholderTextColor="#999"
           secureTextEntry
+          value={password}
+          onChangeText={setPassword}
         />
       </View>
 
@@ -40,14 +67,14 @@ export default function LoginForm() {
         </Pressable>
       </View>
 
-      <Pressable style={styles.submitButton}>
+      <Pressable style={styles.submitButton} onPress={handleSumbit}>
         <Text style={styles.submitText}>Sign In</Text>
       </Pressable>
 
       <Text style={styles.p}>
-        Don't have an account? 
+        Don't have an account?
         <Pressable onPress={() => router.push("/pages/createAccountPage")}>
-        <Text style={styles.span}>Sign Up</Text>
+          <Text style={styles.span}>Sign Up</Text>
         </Pressable>
       </Text>
 

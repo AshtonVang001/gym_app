@@ -1,6 +1,7 @@
 import { serve } from '@hono/node-server'
 import { app } from './app.js'
 import "./api/createAccount.js"
+import "./api/login.js"
 
 serve({
   fetch: app.fetch,

@@ -19,7 +19,7 @@ const CreateAccountBox = () => {
                 password: password,
             }),
         });
-
+        console.log(res.body);
         const data = await res.json();
         if (data.success) {
             router.push("/pages/dashboard");
