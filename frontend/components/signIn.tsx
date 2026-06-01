@@ -1,10 +1,12 @@
 import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { setUser } = useAuth();
 
   const handleSumbit = async () => {
     const res = await fetch("http://localhost:3000/auth/login", {
@@ -17,8 +19,8 @@ export default function LoginForm() {
         password: password,
       }),
     });
-    console.log(res.body);
     const data = await res.json();
+    setUser(data.user.username);
     if (data.success) {
       router.push("/pages/dashboard");
     }

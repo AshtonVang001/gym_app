@@ -1,16 +1,20 @@
 import { ScrollView, View, Text, Pressable, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Dashboard() {
+    const { user } = useAuth();
   return (
     <View style={styles.screen}>
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
-
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.content}
+      >
         {/* Header */}
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Good morning,</Text>
-            <Text style={styles.name}>User</Text>
+            <Text style={styles.name}>{user?.username}</Text>
           </View>
           <View style={styles.avatar}>
             <Ionicons name="person" size={22} color="#2d79f3" />
@@ -61,7 +65,6 @@ export default function Dashboard() {
             <Text style={styles.placeholder}>No personal records yet.</Text>
           </View>
         </View>
-
       </ScrollView>
     </View>
   );

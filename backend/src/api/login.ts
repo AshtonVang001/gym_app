@@ -8,9 +8,8 @@ app.post("/auth/login", async (c) => {
     const { email, password } = await c.req.json();
 
     const user =
-      await dbConfig`SELECT id, email, password FROM users WHERE email = ${email}`;
+      await dbConfig`SELECT id, email, username, password FROM users WHERE email = ${email}`;
 
-      console.log(password)
     if (user.length === 0) {
       return c.json(
         { success: false, message: "Invalid email or passowrd" },
@@ -29,6 +28,7 @@ app.post("/auth/login", async (c) => {
       message: "Successfully logged in!",
       user: {
         id: user[0].id,
+        username: user[0].username,
         email: user[0].email,
       },
     });
