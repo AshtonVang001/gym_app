@@ -4,6 +4,9 @@ import { useAuth } from "@/context/AuthContext";
 
 export default function Dashboard() {
     const { user } = useAuth();
+    console.log("user.username: ", user);
+    const username= String(user)
+
   return (
     <View style={styles.screen}>
       <ScrollView
@@ -14,7 +17,7 @@ export default function Dashboard() {
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Good morning,</Text>
-            <Text style={styles.name}>{user?.username}</Text>
+            <Text style={styles.name}>{username}</Text>
           </View>
           <View style={styles.avatar}>
             <Ionicons name="person" size={22} color="#2d79f3" />

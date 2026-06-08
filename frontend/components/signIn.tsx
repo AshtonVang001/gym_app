@@ -20,6 +20,7 @@ export default function LoginForm() {
       }),
     });
     const data = await res.json();
+    console.log("data.user.username: ", data.user.username);
     setUser(data.user.username);
     if (data.success) {
       router.push("/pages/dashboard");
