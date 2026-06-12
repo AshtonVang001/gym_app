@@ -2,70 +2,165 @@ import { ScrollView, View, Text, Pressable, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "@/context/AuthContext";
 
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
 export default function Dashboard() {
-    const { user } = useAuth();
-    console.log("user.username: ", user);
-    const username= String(user)
+  const { user } = useAuth();
+  const username = String(user)
 
   return (
     <View style={styles.screen}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
       >
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Good morning,</Text>
+            <Text style={styles.greeting}>{getGreeting()},</Text>
             <Text style={styles.name}>{username}</Text>
           </View>
-          <View style={styles.avatar}>
-            <Ionicons name="person" size={22} color="#2d79f3" />
+          <View style={styles.headerRight}>
+            <Pressable style={styles.iconButton}>
+              <Ionicons name="notifications-outline" size={22} color="#151717" />
+            </Pressable>
+            <View style={styles.avatar}>
+              <Ionicons name="person" size={20} color="#2d79f3" />
+            </View>
           </View>
         </View>
 
-        {/* Stat cards */}
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Ionicons name="flame" size={20} color="#ff6b35" />
-            <Text style={styles.statValue}>0</Text>
-            <Text style={styles.statLabel}>Day Streak</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Ionicons name="barbell" size={20} color="#2d79f3" />
-            <Text style={styles.statValue}>0</Text>
-            <Text style={styles.statLabel}>This Week</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Ionicons name="trending-up" size={20} color="#4caf50" />
-            <Text style={styles.statValue}>0</Text>
-            <Text style={styles.statLabel}>Volume</Text>
-          </View>
-        </View>
-
-        {/* Today's workout */}
+        {/* Quick Start Workout */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Today's Workout</Text>
+          <Text style={styles.sectionTitle}>Quick Start</Text>
           <View style={styles.card}>
-            <View style={styles.workoutCardHeader}>
-              <View>
-                <Text style={styles.workoutName}>Workout Name</Text>
-                <Text style={styles.workoutMeta}>0 exercises</Text>
-              </View>
-              <Pressable style={styles.startButton}>
-                <Text style={styles.startButtonText}>Start</Text>
-              </Pressable>
+            <View style={styles.quickStartTop}>
+              <Text style={styles.workoutName}>No workout planned</Text>
+              <Text style={styles.workoutMeta}>— exercises · — min</Text>
             </View>
             <View style={styles.divider} />
-            <Text style={styles.placeholder}>No exercises added yet.</Text>
+            <View style={styles.quickStartActions}>
+              <Pressable style={styles.startButton}>
+                <Ionicons name="play" size={16} color="#fff" />
+                <Text style={styles.startButtonText}>Start Workout</Text>
+              </Pressable>
+              <Pressable style={styles.newWorkoutButton}>
+                <Text style={styles.newWorkoutText}>New Workout</Text>
+              </Pressable>
+            </View>
           </View>
         </View>
 
-        {/* Personal records */}
+        {/* Weekly Progress */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Personal Records</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Weekly Progress</Text>
+            <Text style={styles.sectionSubtitle}>0 / 0 goal</Text>
+          </View>
+          <View style={styles.card}>
+            <View style={styles.weekRow}>
+              {["M", "T", "W", "T", "F", "S", "S"].map((day, i) => (
+                <View key={i} style={styles.dayCol}>
+                  <View style={styles.dayCircle}>
+                    <Text style={styles.dayCircleText}>{day}</Text>
+                  </View>
+                  <Text style={styles.dayLabel}>{day}</Text>
+                </View>
+              ))}
+            </View>
+            <View style={styles.progressBarTrack}>
+              <View style={[styles.progressBarFill, { width: "0%" }]} />
+            </View>
+            <View style={styles.weekStats}>
+              <View style={styles.weekStat}>
+                <Ionicons name="flame" size={16} color="#ff6b35" />
+                <Text style={styles.weekStatValue}>0</Text>
+                <Text style={styles.weekStatLabel}>Day Streak</Text>
+              </View>
+              <View style={styles.weekStatDivider} />
+              <View style={styles.weekStat}>
+                <Ionicons name="barbell" size={16} color="#2d79f3" />
+                <Text style={styles.weekStatValue}>0</Text>
+                <Text style={styles.weekStatLabel}>This Week</Text>
+              </View>
+              <View style={styles.weekStatDivider} />
+              <View style={styles.weekStat}>
+                <Ionicons name="trending-up" size={16} color="#4caf50" />
+                <Text style={styles.weekStatValue}>0</Text>
+                <Text style={styles.weekStatLabel}>Volume</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Personal Records */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Personal Records</Text>
+            <Pressable>
+              <Text style={styles.seeAll}>See all</Text>
+            </Pressable>
+          </View>
           <View style={styles.card}>
             <Text style={styles.placeholder}>No personal records yet.</Text>
+          </View>
+        </View>
+
+        {/* Weight Progress */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Weight Progress</Text>
+            <Pressable>
+              <Text style={styles.seeAll}>Log weight</Text>
+            </Pressable>
+          </View>
+          <View style={styles.card}>
+            <Text style={styles.placeholder}>No weight entries yet.</Text>
+          </View>
+        </View>
+
+        {/* Leaderboard */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Leaderboard</Text>
+            <Pressable>
+              <Text style={styles.seeAll}>Friends</Text>
+            </Pressable>
+          </View>
+          <View style={styles.card}>
+            <Text style={styles.placeholder}>No leaderboard data yet.</Text>
+          </View>
+        </View>
+
+        {/* Friend Activity */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Friend Activity</Text>
+            <Pressable>
+              <Text style={styles.seeAll}>See all</Text>
+            </Pressable>
+          </View>
+          <View style={styles.card}>
+            <Text style={styles.placeholder}>No recent activity.</Text>
+          </View>
+        </View>
+
+        {/* Goals */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Goals</Text>
+            <Pressable>
+              <Text style={styles.seeAll}>Edit goals</Text>
+            </Pressable>
+          </View>
+          <View style={styles.card}>
+            <Text style={styles.placeholder}>No goals set yet.</Text>
           </View>
         </View>
       </ScrollView>
@@ -74,38 +169,38 @@ export default function Dashboard() {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    padding: 20,
-    paddingBottom: 40,
-  },
+  screen: { flex: 1, backgroundColor: "#f5f5f5" },
+  scrollView: { flex: 1 },
+  content: { padding: 20, paddingBottom: 48 },
 
+  // Header
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 24,
+    marginBottom: 28,
     marginTop: 8,
   },
-  greeting: {
-    color: "#888",
-    fontSize: 14,
-  },
-  name: {
-    color: "#151717",
-    fontSize: 26,
-    fontWeight: "700",
+  headerRight: { flexDirection: "row", alignItems: "center", gap: 10 },
+  greeting: { color: "#888", fontSize: 14 },
+  name: { color: "#151717", fontSize: 26, fontWeight: "700" },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: "#e8edf5",
     justifyContent: "center",
     alignItems: "center",
@@ -113,45 +208,19 @@ const styles = StyleSheet.create({
     borderColor: "#dde3ed",
   },
 
-  statsRow: {
+  // Section layout
+  section: { marginBottom: 24 },
+  sectionHeader: {
     flexDirection: "row",
-    gap: 10,
-    marginBottom: 24,
-  },
-  statCard: {
-    flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 14,
+    justifyContent: "space-between",
     alignItems: "center",
-    gap: 4,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  statValue: {
-    color: "#151717",
-    fontSize: 16,
-    fontWeight: "700",
-    marginTop: 4,
-  },
-  statLabel: {
-    color: "#888",
-    fontSize: 11,
-  },
-
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    color: "#151717",
-    fontSize: 18,
-    fontWeight: "700",
     marginBottom: 12,
   },
+  sectionTitle: { color: "#151717", fontSize: 18, fontWeight: "700" },
+  sectionSubtitle: { color: "#888", fontSize: 13 },
+  seeAll: { color: "#2d79f3", fontSize: 13, fontWeight: "600" },
 
+  // Card base
   card: {
     backgroundColor: "#fff",
     borderRadius: 16,
@@ -162,42 +231,72 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
-  workoutCardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 14,
-  },
-  workoutName: {
-    color: "#151717",
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  workoutMeta: {
-    color: "#888",
-    fontSize: 13,
-    marginTop: 2,
-  },
-  startButton: {
-    backgroundColor: "#2d79f3",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 10,
-  },
-  startButtonText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 14,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#eee",
-    marginBottom: 14,
-  },
+  divider: { height: 1, backgroundColor: "#f0f0f0", marginVertical: 14 },
   placeholder: {
     color: "#aaa",
     fontSize: 14,
     textAlign: "center",
     paddingVertical: 8,
   },
+
+  // Quick Start
+  quickStartTop: { marginBottom: 0 },
+  workoutName: { color: "#151717", fontSize: 18, fontWeight: "700" },
+  workoutMeta: { color: "#888", fontSize: 13, marginTop: 2 },
+  quickStartActions: { flexDirection: "row", gap: 10 },
+  startButton: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    backgroundColor: "#2d79f3",
+    paddingVertical: 13,
+    borderRadius: 12,
+  },
+  startButtonText: { color: "#fff", fontWeight: "700", fontSize: 15 },
+  newWorkoutButton: {
+    paddingHorizontal: 18,
+    paddingVertical: 13,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: "#dde3ed",
+    justifyContent: "center",
+  },
+  newWorkoutText: { color: "#555", fontWeight: "600", fontSize: 14 },
+
+  // Weekly Progress
+  weekRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  dayCol: { alignItems: "center", gap: 5 },
+  dayCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#f0f0f0",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  dayCircleText: { color: "#aaa", fontSize: 12, fontWeight: "600" },
+  dayLabel: { color: "#aaa", fontSize: 11 },
+  progressBarTrack: {
+    height: 6,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 3,
+    marginBottom: 18,
+    overflow: "hidden",
+  },
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: "#2d79f3",
+    borderRadius: 3,
+  },
+  weekStats: { flexDirection: "row", justifyContent: "space-around" },
+  weekStat: { alignItems: "center", gap: 4 },
+  weekStatValue: { color: "#151717", fontSize: 15, fontWeight: "700" },
+  weekStatLabel: { color: "#888", fontSize: 11 },
+  weekStatDivider: { width: 1, backgroundColor: "#eee", alignSelf: "stretch" },
 });
