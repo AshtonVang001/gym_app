@@ -1,6 +1,7 @@
 import { app } from "../app.js";
 import { dbConfig } from "./dbconnect.js";
 import { sign } from "hono/jwt";
+import crypto from "crypto";
 import * as bcrypt from "bcrypt";
 import "dotenv/config";
 
@@ -11,7 +12,7 @@ app.post("/auth/register", async (c) => {
   const saltRounds = 10;
 
   try {
-    const { username, email, password } = await c.req.json();
+    const { username, email, password, deviceInfo } = await c.req.json();
     console.log(username);
 
     const hashedPassowrd = await bcrypt.hash(password, saltRounds);
@@ -34,12 +35,6 @@ app.post("/auth/register", async (c) => {
                 VALUES (${username}, ${email}, ${hashedPassowrd}, 'user', ${false}, 'online', ${false}, 'test')
                 RETURNING id, username, email, created_at`;
 
-    //create access token
-    //create refresh token
-    //hash refresh token
-    //store refresh token into db
-    //access token will be a jwt
-
     const accessPayload = {
       sub: username,
       role: user[0].role,
@@ -50,12 +45,20 @@ app.post("/auth/register", async (c) => {
 
     const accessToken = await sign(accessPayload, secret);
 
+    const refreshToken = crypto.randomBytes(64).toString("hex");
+
+    const exp = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    // const refresh =
+    await dbConfig`INSERT INTO refresh_tokens (user_id, expires_at, device_info, token_hash)
+    VALUES (${user[0].id}, ${exp}, ${deviceInfo}, ${refreshToken})`;
+
     return c.json(
       {
         success: true,
         message: "Account created successfully!",
         data: user,
-        accessToken: accessToken
+        accessToken: accessToken,
       },
       201,
     );

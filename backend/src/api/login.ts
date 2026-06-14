@@ -1,12 +1,13 @@
 import { app } from "../app.js";
 import { dbConfig } from "./dbconnect.js";
 import { sign } from "hono/jwt";
+import crypto from "crypto";
 import * as bcrypt from "bcrypt";
 import "dotenv/config";
 
 app.post("/auth/login", async (c) => {
   try {
-    const { email, password } = await c.req.json();
+    const { email, password, deviceInfo } = await c.req.json();
 
     const user =
       await dbConfig`SELECT id, email, username, password FROM users WHERE email = ${email}`;
@@ -26,12 +27,6 @@ app.post("/auth/login", async (c) => {
       return c.json({ success: false, message: "Invalid email password" }, 401);
     }
 
-    //create access token
-    //create refresh token
-    //hash refresh token
-    //store refresh token into db
-    //access token will be a jwt
-
     const accessPayload = {
       sub: user[0].username,
       role: user[0].role,
@@ -42,7 +37,15 @@ app.post("/auth/login", async (c) => {
 
     const accessToken = await sign(accessPayload, secret);
 
-    const refreshPayload = {};
+    const refreshToken = crypto.randomBytes(64).toString("hex");
+
+    const exp = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+
+    // const refresh =
+    await dbConfig`INSERT INTO refresh_tokens (user_id, expires_at, device_info, token_hash)
+    VALUES (${user[0].id}, ${exp}, ${deviceInfo}, ${refreshToken})`;
+
+    console.log(refreshToken);
 
     return c.json({
       success: true,
@@ -52,7 +55,7 @@ app.post("/auth/login", async (c) => {
         username: user[0].username,
         email: user[0].email,
       },
-      accessToken: accessToken
+      accessToken: accessToken,
     });
   } catch (error) {
     return c.json({ success: false, message: `Error: ${error}` });
