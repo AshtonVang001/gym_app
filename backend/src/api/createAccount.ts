@@ -1,5 +1,6 @@
 import { app } from "../app.js";
 import { dbConfig } from "./dbconnect.js";
+import { sign } from "hono/jwt";
 import * as bcrypt from "bcrypt";
 import "dotenv/config";
 
@@ -33,11 +34,28 @@ app.post("/auth/register", async (c) => {
                 VALUES (${username}, ${email}, ${hashedPassowrd}, 'user', ${false}, 'online', ${false}, 'test')
                 RETURNING id, username, email, created_at`;
 
+    //create access token
+    //create refresh token
+    //hash refresh token
+    //store refresh token into db
+    //access token will be a jwt
+
+    const accessPayload = {
+      sub: username,
+      role: user[0].role,
+      exp: Math.floor(Date.now() / 1000) + 60 * 15, //15 minutes
+    };
+
+    const secret = process.env.ACCESS_SECRET || "placeholder";
+
+    const accessToken = await sign(accessPayload, secret);
+
     return c.json(
       {
         success: true,
         message: "Account created successfully!",
         data: user,
+        accessToken: accessToken
       },
       201,
     );
