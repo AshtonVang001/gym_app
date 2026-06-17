@@ -5,10 +5,9 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
-import * as SecureStore from "expo-secure-store";
 
-const ACCESS_TOKEN_KEY = "accessToken";
-const REFRESH_TOKEN_KEY = "refreshToken";
+import { saveTokens, getTokens, clearTokens } from "@/storage/authStorage";
+import { loginRequest, logoutRequest } from "@/services/authApi";
 
 type User = {
   id: number;
@@ -21,9 +20,9 @@ type AuthContextType = {
   accessToken: string | null;
   refreshToken: string | null;
   isLoading: boolean;
-  setUser: (u: User) => void;
-  setTokens: (access: string, refresh: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  setUser: (user: User) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -34,48 +33,71 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Hydrate tokens from SecureStore on first mount
   useEffect(() => {
-    const loadTokens = async () => {
-      const storedAccess = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
-      const storedRefresh = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
-      if (storedAccess) setAccessToken(storedAccess);
-      if (storedRefresh) setRefreshToken(storedRefresh);
-      setIsLoading(false);
+    const loadStoredTokens = async () => {
+      try {
+        const tokens = await getTokens();
+
+        if (tokens.accessToken) {
+          setAccessToken(tokens.accessToken);
+        }
+
+        if (tokens.refreshToken) {
+          setRefreshToken(tokens.refreshToken);
+        }
+      } catch (error) {
+        console.log("Failed to load tokens", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
-    loadTokens();
+
+    loadStoredTokens();
   }, []);
 
-  const setTokens = async (access: string, refresh: string) => {
-    await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, access);
-    await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, refresh);
-    setAccessToken(access);
-    setRefreshToken(refresh);
+  const login = async (email: string, password: string) => {
+    const data = await loginRequest(email, password, "mock-iphone17");
+
+    if (!data.success) {
+      throw new Error(data.message || "Login failed");
+    }
+
+    await saveTokens(data.accessToken, data.refreshToken);
+
+    setUser(data.user);
+    setAccessToken(data.accessToken);
+    setRefreshToken(data.refreshToken);
   };
 
   const logout = async () => {
-    const storedRefresh = await SecureStore.getItemAsync(REFRESH_TOKEN_KEY);
-    if (storedRefresh) {
-      try {
-        await fetch("http://localhost:3000/auth/logout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ refreshToken: storedRefresh }),
-        });
-      } catch {
-        // proceed with local logout even if network fails
+    try {
+      const tokens = await getTokens();
+
+      if (tokens.refreshToken) {
+        await logoutRequest(tokens.refreshToken);
       }
+    } catch (error) {
+      console.log("Logout request failed, clearing local tokens anyway", error);
+    } finally {
+      await clearTokens();
+
+      setUser(null);
+      setAccessToken(null);
+      setRefreshToken(null);
     }
-    await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
-    await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
-    setUser(null);
-    setAccessToken(null);
-    setRefreshToken(null);
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, accessToken, refreshToken, isLoading, setUser, setTokens, logout }}
+      value={{
+        user,
+        accessToken,
+        refreshToken,
+        isLoading,
+        login,
+        logout,
+        setUser,
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -84,6 +106,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export const useAuth = (): AuthContextType => {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
+
+  if (!ctx) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+
   return ctx;
 };

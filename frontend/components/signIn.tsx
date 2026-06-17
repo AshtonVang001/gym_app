@@ -6,27 +6,16 @@ import { useAuth } from "@/context/AuthContext";
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setUser, setTokens } = useAuth();
 
-  const handleSumbit = async () => {
-    const res = await fetch("http://localhost:3000/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: email,
-        password: password,
-        deviceInfo: "mock-iphone17"
-      }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      setUser(data.user);
-      await setTokens(data.accessToken, data.refreshToken);
+  const { login } = useAuth();
+
+  const handleSubmit = async () => {
+    try {
+      await login(email, password);
       router.replace("/pages/dashboard");
+    } catch (error) {
+      console.log("Login failed", error);
     }
-    console.log("Response from backend", data);
   };
 
   return (
@@ -42,6 +31,7 @@ export default function LoginForm() {
           placeholderTextColor="#999"
           value={email}
           onChangeText={setEmail}
+          autoCapitalize="none"
         />
       </View>
 
@@ -71,15 +61,18 @@ export default function LoginForm() {
         </Pressable>
       </View>
 
-      <Pressable style={styles.submitButton} onPress={handleSumbit}>
+      <Pressable style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitText}>Sign In</Text>
       </Pressable>
 
       <Text style={styles.p}>
-        Don't have an account?
-        <Pressable onPress={() => router.push("/pages/createAccountPage")}>
-          <Text style={styles.span}>Sign Up</Text>
-        </Pressable>
+        Don't have an account?{" "}
+        <Text
+          style={styles.span}
+          onPress={() => router.push("/pages/createAccountPage")}
+        >
+          Sign Up
+        </Text>
       </Text>
 
       <Text style={styles.p}>Or With</Text>
