@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server'
 import { app } from './app.js'
 import "./api/createAccount.js"
 import "./api/login.js"
+import "./api/logout.js"
 
 serve({
   fetch: app.fetch,

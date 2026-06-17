@@ -56,6 +56,7 @@ app.post("/auth/login", async (c) => {
         email: user[0].email,
       },
       accessToken: accessToken,
+      refreshToken: refreshToken,
     });
   } catch (error) {
     return c.json({ success: false, message: `Error: ${error}` });

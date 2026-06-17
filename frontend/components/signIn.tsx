@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { setUser } = useAuth();
+  const { setUser, setTokens } = useAuth();
 
   const handleSumbit = async () => {
     const res = await fetch("http://localhost:3000/auth/login", {
@@ -17,13 +17,14 @@ export default function LoginForm() {
       body: JSON.stringify({
         email: email,
         password: password,
+        deviceInfo: "mock-iphone17"
       }),
     });
     const data = await res.json();
-    console.log("data.user.username: ", data.user.username);
-    setUser(data.user.username);
     if (data.success) {
-      router.push("/pages/dashboard");
+      setUser(data.user);
+      await setTokens(data.accessToken, data.refreshToken);
+      router.replace("/pages/dashboard");
     }
     console.log("Response from backend", data);
   };
