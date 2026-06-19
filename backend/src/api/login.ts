@@ -12,8 +12,6 @@ app.post("/auth/login", async (c) => {
     const user =
       await dbConfig`SELECT id, email, username, password FROM users WHERE email = ${email}`;
 
-    console.log(user[0].id);
-
     if (user.length === 0) {
       return c.json(
         { success: false, message: "Invalid email or passowrd" },
@@ -45,8 +43,6 @@ app.post("/auth/login", async (c) => {
     await dbConfig`INSERT INTO refresh_tokens (user_id, expires_at, device_info, token_hash)
     VALUES (${user[0].id}, ${exp}, ${deviceInfo}, ${refreshToken})`;
 
-    console.log(refreshToken);
-
     return c.json({
       success: true,
       message: "Successfully logged in!",
@@ -62,3 +58,10 @@ app.post("/auth/login", async (c) => {
     return c.json({ success: false, message: `Error: ${error}` });
   }
 });
+
+//access and refresh token flow
+//with every request the access token gets checked
+//if access token is still valid that request gets a response
+//if the access token is not valid check the refresh token
+//if the refresh token is valid create a new access token (should be instantaneous, the user doesnt even notice)
+//if the refresh token expires the user is logged out 

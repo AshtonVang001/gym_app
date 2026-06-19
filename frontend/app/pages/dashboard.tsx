@@ -74,6 +74,18 @@ export default function Dashboard() {
           </View>
         </View>
 
+        {/* Physique Scanner */}
+        <Pressable style={({ pressed }) => [styles.physiqueCard, pressed && styles.physiqueCardPressed]}>
+          <View style={styles.physiqueIconWrap}>
+            <Ionicons name="body-outline" size={32} color="#2d79f3" />
+          </View>
+          <View style={styles.physiqueTextWrap}>
+            <Text style={styles.physiqueTitle}>Physique Scanner</Text>
+            <Text style={styles.physiqueSubtitle}>AI-powered body analysis</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#2d79f3" />
+        </Pressable>
+
         {/* Weekly Progress */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -282,6 +294,36 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   newWorkoutText: { color: "#555", fontWeight: "600", fontSize: 14 },
+
+  // Physique Scanner
+  physiqueCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#0f172a",
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 24,
+    shadowColor: "#2d79f3",
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+  },
+  physiqueCardPressed: { opacity: 0.85 },
+  physiqueIconWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    backgroundColor: "#1e293b",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 14,
+    borderWidth: 1,
+    borderColor: "#2d79f330",
+  },
+  physiqueTextWrap: { flex: 1 },
+  physiqueTitle: { color: "#fff", fontSize: 17, fontWeight: "700", marginBottom: 3 },
+  physiqueSubtitle: { color: "#94a3b8", fontSize: 13 },
 
   // Weekly Progress
   weekRow: {

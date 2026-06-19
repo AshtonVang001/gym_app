@@ -45,6 +45,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (tokens.refreshToken) {
           setRefreshToken(tokens.refreshToken);
         }
+
+        console.log("accessToken: ", tokens.accessToken);
+        console.log("refreshToken: ", tokens.refreshToken)
       } catch (error) {
         console.log("Failed to load tokens", error);
       } finally {
