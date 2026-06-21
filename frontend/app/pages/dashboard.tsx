@@ -75,7 +75,7 @@ export default function Dashboard() {
         </View>
 
         {/* Physique Scanner */}
-        <Pressable style={({ pressed }) => [styles.physiqueCard, pressed && styles.physiqueCardPressed]}>
+        <Pressable onPress={() => router.push("/pages/scanner")} style={({ pressed }) => [styles.physiqueCard, pressed && styles.physiqueCardPressed]}>
           <View style={styles.physiqueIconWrap}>
             <Ionicons name="body-outline" size={32} color="#2d79f3" />
           </View>
