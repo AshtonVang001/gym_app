@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:3000";
+const API_URL =  process.env.EXPO_PUBLIC_API_URL;
+
+console.log("API_URL: ", API_URL);
 
 export async function loginRequest(
   email: string,

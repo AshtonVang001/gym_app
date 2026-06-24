@@ -2,13 +2,15 @@ import { Text, TextInput, View, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { useState } from "react";
 
+const API_URL =  process.env.EXPO_PUBLIC_API_URL;
+
 const CreateAccountBox = () => {
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     const handleSubmit = async () => {
-        const res = await fetch("http://localhost:3000/auth/register", {
+        const res = await fetch(`${API_URL}/auth/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
