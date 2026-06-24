@@ -1,6 +1,14 @@
 import { Text, TextInput, View, Pressable, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { useState } from "react";
+import * as Device from "expo-device";
+
+const deviceInfo = {
+  brand: Device.brand,
+  modelName: Device.modelName,
+  osName: Device.osName,
+  osVersion: Device.osVersion,
+};
 
 const API_URL =  process.env.EXPO_PUBLIC_API_URL;
 
@@ -19,6 +27,7 @@ const CreateAccountBox = () => {
                 username: username,
                 email: email,
                 password: password,
+                deviceInfo: deviceInfo
             }),
         });
         console.log(res.body);

@@ -8,6 +8,14 @@ import React, {
 
 import { saveTokens, getTokens, clearTokens } from "@/storage/authStorage";
 import { loginRequest, logoutRequest } from "@/services/authApi";
+import * as Device from "expo-device";
+
+const deviceInfo = {
+  brand: Device.brand,
+  modelName: Device.modelName,
+  osName: Device.osName,
+  osVersion: Device.osVersion,
+};
 
 type User = {
   id: number;
@@ -47,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         console.log("accessToken: ", tokens.accessToken);
-        console.log("refreshToken: ", tokens.refreshToken)
+        console.log("refreshToken: ", tokens.refreshToken);
       } catch (error) {
         console.log("Failed to load tokens", error);
       } finally {
@@ -59,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const data = await loginRequest(email, password, "mock-iphone17");
+    const data = await loginRequest(email, password, deviceInfo);
 
     if (!data.success) {
       throw new Error(data.message || "Login failed");

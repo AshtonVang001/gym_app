@@ -50,8 +50,8 @@ app.post("/auth/register", async (c) => {
     const exp = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
     // const refresh =
-    await dbConfig`INSERT INTO refresh_tokens (user_id, expires_at, device_info, token_hash)
-    VALUES (${user[0].id}, ${exp}, ${deviceInfo}, ${refreshToken})`;
+    await dbConfig`INSERT INTO refresh_tokens (user_id, expires_at, token_hash, device_info)
+    VALUES (${user[0].id}, ${exp}, ${refreshToken}, ${deviceInfo})`;
 
     return c.json(
       {

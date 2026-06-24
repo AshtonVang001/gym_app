@@ -1,11 +1,16 @@
-const API_URL =  process.env.EXPO_PUBLIC_API_URL;
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
 console.log("API_URL: ", API_URL);
 
 export async function loginRequest(
   email: string,
   password: string,
-  deviceInfo: string,
+  deviceInfo: {
+    brand: string | null;
+    modelName: string | null;
+    osName: string | null;
+    osVersion: string | null;
+  },
 ) {
   const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
