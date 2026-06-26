@@ -1,4 +1,2 @@
-The create account flow is kind of messed up. 
-First when you create an account the username does not pop on the dashboard
-Secondly when the user logs out after creating an account the refresh token is not deleted
+The create account flow is kind of messed up.
 Also when you log out after creating an account it just goes back to the create accounts page w the credentials filled
