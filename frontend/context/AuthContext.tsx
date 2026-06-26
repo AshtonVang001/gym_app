@@ -7,7 +7,11 @@ import React, {
 } from "react";
 
 import { saveTokens, getTokens, clearTokens } from "@/storage/authStorage";
-import { loginRequest, logoutRequest } from "@/services/authApi";
+import {
+  createAccountRequest,
+  loginRequest,
+  logoutRequest,
+} from "@/services/authApi";
 import * as Device from "expo-device";
 
 const deviceInfo = {
@@ -29,6 +33,11 @@ type AuthContextType = {
   refreshToken: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  createAccount: (
+    username: string,
+    email: string,
+    password: string,
+  ) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User) => void;
 };
@@ -80,6 +89,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setRefreshToken(data.refreshToken);
   };
 
+  const createAccount = async (
+    username: string,
+    email: string,
+    password: string,
+  ) => {
+    const data = await createAccountRequest(
+      username,
+      email,
+      password,
+      deviceInfo,
+    );
+
+    if (!data.success) {
+      throw new Error(data.message || "Account Creation failed");
+    }
+
+    const accessToken = data.accessToken ?? data.access_token;
+    const refreshToken = data.refreshToken ?? data.refresh_token;
+
+    if (typeof accessToken !== "string" || typeof refreshToken !== "string") {
+      throw new Error(
+        `Account created but tokens missing from response. Got: ${JSON.stringify(data)}`,
+      );
+    }
+
+    await saveTokens(accessToken, refreshToken);
+
+    console.log("username: ", data.user);
+
+    setUser(data.user);
+    setAccessToken(accessToken);
+    setRefreshToken(refreshToken);
+  };
+
   const logout = async () => {
     try {
       const tokens = await getTokens();
@@ -105,6 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         accessToken,
         refreshToken,
         isLoading,
+        createAccount,
         login,
         logout,
         setUser,

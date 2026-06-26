@@ -57,8 +57,13 @@ app.post("/auth/register", async (c) => {
       {
         success: true,
         message: "Account created successfully!",
-        data: user,
+        user: {
+          id: user[0].id,
+          username: user[0].username,
+          email: user[0].email,
+        },
         accessToken: accessToken,
+        refreshToken: refreshToken,
       },
       201,
     );
