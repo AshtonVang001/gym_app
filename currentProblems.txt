@@ -1,2 +1,0 @@
-The create account flow is kind of messed up.
-Also when you log out after creating an account it just goes back to the create accounts page w the credentials filled
