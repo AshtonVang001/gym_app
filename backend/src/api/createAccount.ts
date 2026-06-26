@@ -5,9 +5,6 @@ import crypto from "crypto";
 import * as bcrypt from "bcrypt";
 import "dotenv/config";
 
-//hash password
-//user will enter username, email, and password
-
 app.post("/auth/register", async (c) => {
   const saltRounds = 10;
 
