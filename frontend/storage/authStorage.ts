@@ -22,3 +22,10 @@ export async function clearTokens() {
   await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
   await SecureStore.deleteItemAsync(REFRESH_TOKEN_KEY);
 }
+
+export async function debugTokens(label = "SecureStore") {
+  const { accessToken, refreshToken } = await getTokens();
+  console.log(`\n[${label}]`);
+  console.log("  accessToken :", accessToken ?? "null");
+  console.log("  refreshToken:", refreshToken ?? "null");
+}

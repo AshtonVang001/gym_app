@@ -6,7 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 
-import { saveTokens, getTokens, clearTokens } from "@/storage/authStorage";
+import { saveTokens, getTokens, clearTokens, debugTokens } from "@/storage/authStorage";
 import {
   createAccountRequest,
   loginRequest,
@@ -63,8 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setRefreshToken(tokens.refreshToken);
         }
 
-        console.log("accessToken: ", tokens.accessToken);
-        console.log("refreshToken: ", tokens.refreshToken);
+        await debugTokens("app launch");
       } catch (error) {
         console.log("Failed to load tokens", error);
       } finally {
@@ -87,6 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
     setAccessToken(data.accessToken);
     setRefreshToken(data.refreshToken);
+    await debugTokens("after login");
   };
 
   const createAccount = async (
@@ -116,11 +116,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     await saveTokens(accessToken, refreshToken);
 
-    console.log("username: ", data.user);
-
     setUser(data.user);
     setAccessToken(accessToken);
     setRefreshToken(refreshToken);
+    await debugTokens("after createAccount");
   };
 
   const logout = async () => {
