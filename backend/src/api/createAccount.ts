@@ -44,11 +44,13 @@ app.post("/auth/register", async (c) => {
 
     const refreshToken = crypto.randomBytes(64).toString("hex");
 
+    const hashedRefresh = crypto.createHash('sha256').update(refreshToken).digest('hex');
+
     const exp = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
     // const refresh =
     await dbConfig`INSERT INTO refresh_tokens (user_id, expires_at, token_hash, device_info)
-    VALUES (${user[0].id}, ${exp}, ${refreshToken}, ${deviceInfo})`;
+    VALUES (${user[0].id}, ${exp}, ${hashedRefresh}, ${deviceInfo})`;
 
     return c.json(
       {
