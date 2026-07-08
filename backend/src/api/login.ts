@@ -37,13 +37,20 @@ app.post("/auth/login", async (c) => {
 
     const refreshToken = crypto.randomBytes(64).toString("hex");
 
-    const hashedRefresh = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    const hashedRefresh = crypto
+      .createHash("sha256")
+      .update(refreshToken)
+      .digest("hex");
 
     const exp = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
+    const currentDate: Date = new Date();
+
+    const familyID = crypto.randomUUID();
+
     // const refresh =
-    await dbConfig`INSERT INTO refresh_tokens (user_id, expires_at, token_hash, device_info)
-    VALUES (${user[0].id}, ${exp}, ${hashedRefresh}, ${deviceInfo})`;
+    await dbConfig`INSERT INTO refresh_tokens (user_id, expires_at, created_at, token_hash, device_info, family_id, last_used_at, revoked)
+    VALUES (${user[0].id}, ${exp}, ${currentDate}, ${hashedRefresh}, ${deviceInfo}, ${familyID}, ${currentDate}, false)`;
 
     return c.json({
       success: true,
@@ -66,4 +73,4 @@ app.post("/auth/login", async (c) => {
 //if access token is still valid that request gets a response
 //if the access token is not valid check the refresh token
 //if the refresh token is valid create a new access token (should be instantaneous, the user doesnt even notice)
-//if the refresh token expires the user is logged out 
+//if the refresh token expires the user is logged out
