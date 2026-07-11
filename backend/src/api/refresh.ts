@@ -5,20 +5,12 @@ import crypto from "crypto";
 import * as bcrypt from "bcrypt";
 import "dotenv/config";
 
-//this is going to be refresh token rotation
-//for when an access token expires
-//so this generates new access token and refresh token together
 app.post("/auth/refresh", async (c) => {
-  //recieve refresh token - frontend should send it through the payload
-  //then revoke that token
-  //then create a new one
   try {
     const { refreshToken, deviceInfo } = await c.req.json();
 
     const ID =
       await dbConfig`SELECT user_id, family_id FROM refresh_tokens WHERE token_hash = ${refreshToken}`;
-
-    //revoke refresh token
 
     const user =
       await dbConfig`SELECT id, username, role FROM users WHERE id = ${ID[0].user_id}`;
