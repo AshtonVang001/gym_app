@@ -38,7 +38,7 @@ app.post("/auth/register", async (c) => {
       exp: Math.floor(Date.now() / 1000) + 60 * 15, //15 minutes
     };
 
-    const secret = process.env.ACCESS_SECRET || "placeholder";
+    const secret = process.env.ACCESS_SECRET!;
 
     const accessToken = await sign(accessPayload, secret);
 

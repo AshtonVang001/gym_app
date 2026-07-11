@@ -3,6 +3,7 @@ import { app } from './app.js'
 import "./api/createAccount.js"
 import "./api/login.js"
 import "./api/logout.js"
+import "./api/refresh.js"
 import "dotenv/config"
 
 serve({
