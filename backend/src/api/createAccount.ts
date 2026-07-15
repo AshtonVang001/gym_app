@@ -12,8 +12,6 @@ app.post("/auth/register", async (c) => {
     const { username, email, password, deviceInfo } = await c.req.json();
     console.log(username);
 
-    const hashedPassowrd = await bcrypt.hash(password, saltRounds);
-
     if (!username?.trim() || !email?.trim() || !password?.trim()) {
       return c.json(
         {
@@ -23,6 +21,8 @@ app.post("/auth/register", async (c) => {
         400,
       );
     }
+
+    const hashedPassowrd = await bcrypt.hash(password, saltRounds);
 
     //insert into db here
 
