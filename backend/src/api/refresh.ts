@@ -56,7 +56,7 @@ app.post("/auth/refresh", async (c) => {
         username: user[0].username,
       },
       accessToken: accessToken,
-      refreshToken: refreshToken,
+      refreshToken: newRefreshToken,
     });
   } catch (error) {
     return c.json({
