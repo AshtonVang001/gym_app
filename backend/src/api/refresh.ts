@@ -7,7 +7,9 @@ import "dotenv/config";
 
 app.post("/auth/refresh", async (c) => {
   try {
-    const { refreshToken, deviceInfo } = await c.req.json();
+    const { refreshToken, deviceInfo } = await c.req.json(); 
+    //current test with postman refreshToken is the hashed token
+    //might change when sent through actual frontend 
 
     const ID =
       await dbConfig`SELECT user_id, family_id FROM refresh_tokens WHERE token_hash = ${refreshToken}`;
@@ -39,7 +41,8 @@ app.post("/auth/refresh", async (c) => {
 
     //revoke current refresh token
     await dbConfig`UPDATE refresh_tokens
-    SET revoked_at = ${currentDate}, revoked = true`;
+    SET revoked_at = ${currentDate}, revoked = true
+    WHERE token_hash = ${refreshToken}`;
 
     //insert new token into db w same family id
     await dbConfig`INSERT INTO refresh_tokens (user_id, expires_at, created_at, token_hash, device_info, family_id, last_used_at, revoked)
