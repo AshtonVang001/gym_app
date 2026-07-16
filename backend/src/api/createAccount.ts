@@ -27,8 +27,8 @@ app.post("/auth/register", async (c) => {
 
     //fix this later rn some of the columns are not the correct data - like online status and what not
     const user =
-      await dbConfig`INSERT INTO users (username, email, password, role, email_verified, status, profile_completed, refresh_token)
-                VALUES (${username}, ${email}, ${hashedPassowrd}, 'user', ${false}, 'online', ${false}, 'test')
+      await dbConfig`INSERT INTO users (username, email, password, role, email_verified, status, profile_completed)
+                VALUES (${username}, ${email}, ${hashedPassowrd}, 'user', ${false}, 'online', ${false})
                 RETURNING id, username, email, created_at`;
 
     const { accessToken, refreshToken } = await createTokens(user, deviceInfo);
