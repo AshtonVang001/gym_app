@@ -7,12 +7,17 @@ import "dotenv/config";
 
 app.post("/auth/refresh", async (c) => {
   try {
-    const { refreshToken, deviceInfo } = await c.req.json(); 
+    const { refreshToken, deviceInfo } = await c.req.json();
     //current test with postman refreshToken is the hashed token
-    //might change when sent through actual frontend 
+    //might change when sent through actual frontend
+
+    const hashedRefresh = crypto
+      .createHash("sha256")
+      .update(refreshToken)
+      .digest("hex");
 
     const ID =
-      await dbConfig`SELECT user_id, family_id FROM refresh_tokens WHERE token_hash = ${refreshToken}`;
+      await dbConfig`SELECT user_id, family_id FROM refresh_tokens WHERE token_hash = ${hashedRefresh}`;
 
     const user =
       await dbConfig`SELECT id, username, role FROM users WHERE id = ${ID[0].user_id}`;
@@ -30,7 +35,7 @@ app.post("/auth/refresh", async (c) => {
 
     const newRefreshToken = crypto.randomBytes(64).toString("hex");
 
-    const hashedRefresh = crypto
+    const newHashedRefresh = crypto
       .createHash("sha256")
       .update(newRefreshToken)
       .digest("hex");
@@ -46,7 +51,7 @@ app.post("/auth/refresh", async (c) => {
 
     //insert new token into db w same family id
     await dbConfig`INSERT INTO refresh_tokens (user_id, expires_at, created_at, token_hash, device_info, family_id, last_used_at, revoked)
-    VALUES (${user[0].id}, ${exp}, ${currentDate}, ${hashedRefresh}, ${deviceInfo}, ${ID[0].family_id}, ${currentDate}, false)`;
+    VALUES (${user[0].id}, ${exp}, ${currentDate}, ${newHashedRefresh}, ${deviceInfo}, ${ID[0].family_id}, ${currentDate}, false)`;
 
     return c.json({
       success: true,
