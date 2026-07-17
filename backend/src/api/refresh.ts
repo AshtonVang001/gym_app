@@ -8,8 +8,11 @@ import "dotenv/config";
 app.post("/auth/refresh", async (c) => {
   try {
     const { refreshToken, deviceInfo } = await c.req.json();
-    //current test with postman refreshToken is the hashed token
-    //might change when sent through actual frontend
+
+    //check if refresh token, is expired, or is revoked
+    if (!refreshToken) {
+      throw new Error("Token does not exist");
+    }
 
     const hashedRefresh = crypto
       .createHash("sha256")
