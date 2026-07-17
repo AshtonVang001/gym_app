@@ -9,7 +9,7 @@ app.post("/auth/refresh", async (c) => {
   try {
     const { refreshToken, deviceInfo } = await c.req.json();
 
-    //check if refresh token, is expired, or is revoked
+    //check if refresh token exists
     if (!refreshToken) {
       throw new Error("Token does not exist");
     }
