@@ -38,7 +38,7 @@ app.post("/auth/login", async (c) => {
       refreshToken: refreshToken,
     });
   } catch (error) {
-    return c.json({ success: false, message: `Error: ${error}` });
+    return c.json({ success: false, message: `Error: ${error}` }, 500);
   }
 });
 
