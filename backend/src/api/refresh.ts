@@ -2,7 +2,6 @@ import { app } from "../app.js";
 import { dbConfig } from "./dbconnect.js";
 import { sign } from "hono/jwt";
 import crypto from "crypto";
-import * as bcrypt from "bcrypt";
 import "dotenv/config";
 
 app.post("/auth/refresh", async (c) => {
