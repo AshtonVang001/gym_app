@@ -6,14 +6,14 @@ app.post("/auth/logout", async (c) => {
   try {
     const { refreshToken } = await c.req.json();
 
+    if (!refreshToken) {
+      return c.json({ success: false, message: "No token provided" }, 400);
+    }
+
     const hashedRefresh = crypto
       .createHash("sha256")
       .update(refreshToken)
       .digest("hex");
-
-    if (!refreshToken) {
-      return c.json({ success: false, message: "No token provided" }, 400);
-    }
 
     await dbConfig`DELETE FROM refresh_tokens WHERE token_hash = ${hashedRefresh}`;
 

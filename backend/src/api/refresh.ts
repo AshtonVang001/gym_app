@@ -11,7 +11,7 @@ app.post("/auth/refresh", async (c) => {
 
     //check if refresh token exists
     if (!refreshToken) {
-      throw new Error("Token does not exist");
+      return c.json({ success: false, message: "No token provided" }, 400);
     }
 
     const hashedRefresh = crypto
