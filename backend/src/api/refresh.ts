@@ -20,7 +20,10 @@ app.post("/auth/refresh", async (c) => {
       .digest("hex");
 
     const ID =
-      await dbConfig`SELECT user_id, family_id FROM refresh_tokens WHERE token_hash = ${hashedRefresh}`;
+      await dbConfig`SELECT user_id, family_id FROM refresh_tokens WHERE token_hash = ${hashedRefresh} AND revoked = false AND expires_at > NOW()`;
+
+    if (ID.length === 0)
+      return c.json({ success: false, message: "Invalid token" }, 401);
 
     const user =
       await dbConfig`SELECT id, username, role FROM users WHERE id = ${ID[0].user_id}`;
@@ -50,7 +53,7 @@ app.post("/auth/refresh", async (c) => {
     //revoke current refresh token
     await dbConfig`UPDATE refresh_tokens
     SET revoked_at = ${currentDate}, revoked = true
-    WHERE token_hash = ${refreshToken}`;
+    WHERE token_hash = ${hashedRefresh}`;
 
     //insert new token into db w same family id
     await dbConfig`INSERT INTO refresh_tokens (user_id, expires_at, created_at, token_hash, device_info, family_id, last_used_at, revoked)
