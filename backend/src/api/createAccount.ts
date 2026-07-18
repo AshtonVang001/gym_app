@@ -9,7 +9,6 @@ app.post("/auth/register", async (c) => {
 
   try {
     const { username, email, password, deviceInfo } = await c.req.json();
-    console.log(username);
 
     if (!username?.trim() || !email?.trim() || !password?.trim()) {
       return c.json(
