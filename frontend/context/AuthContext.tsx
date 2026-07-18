@@ -6,11 +6,19 @@ import React, {
   ReactNode,
 } from "react";
 
-import { saveTokens, getTokens, clearTokens, debugTokens } from "@/storage/authStorage";
+import {
+  saveTokens,
+  getTokens,
+  clearTokens,
+  saveUser,
+  getUser,
+  clearUser,
+} from "@/storage/authStorage";
 import {
   createAccountRequest,
   loginRequest,
   logoutRequest,
+  refreshTokenRequest,
 } from "@/services/authApi";
 import * as Device from "expo-device";
 
@@ -44,6 +52,15 @@ type AuthContextType = {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return Date.now() / 1000 > payload.exp;
+  } catch {
+    return true;
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
@@ -54,18 +71,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const loadStoredTokens = async () => {
       try {
         const tokens = await getTokens();
+        const storedUser = await getUser();
 
-        if (tokens.accessToken) {
-          setAccessToken(tokens.accessToken);
+        if (!tokens.refreshToken || !storedUser) {
+          return;
         }
 
-        if (tokens.refreshToken) {
+        if (!tokens.accessToken || isTokenExpired(tokens.accessToken)) {
+          const data = await refreshTokenRequest(
+            tokens.refreshToken,
+            deviceInfo,
+          );
+
+          if (data.success) {
+            await saveTokens(data.accessToken, data.refreshToken);
+            const refreshedUser = { ...storedUser, ...data.user };
+            await saveUser(refreshedUser);
+            setUser(refreshedUser);
+            setAccessToken(data.accessToken);
+            setRefreshToken(data.refreshToken);
+          } else {
+            await clearTokens();
+            await clearUser();
+          }
+        } else {
+          setUser(storedUser);
+          setAccessToken(tokens.accessToken);
           setRefreshToken(tokens.refreshToken);
         }
-
-        await debugTokens("app launch");
       } catch (error) {
-        console.log("Failed to load tokens", error);
+        console.log("Failed to restore session", error);
+        await clearTokens();
+        await clearUser();
       } finally {
         setIsLoading(false);
       }
@@ -82,11 +119,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     await saveTokens(data.accessToken, data.refreshToken);
+    await saveUser(data.user);
 
     setUser(data.user);
     setAccessToken(data.accessToken);
     setRefreshToken(data.refreshToken);
-    await debugTokens("after login");
   };
 
   const createAccount = async (
@@ -102,24 +139,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     if (!data.success) {
-      throw new Error(data.message || "Account Creation failed");
+      throw new Error(data.message || "Account creation failed");
     }
 
-    const accessToken = data.accessToken ?? data.access_token;
-    const refreshToken = data.refreshToken ?? data.refresh_token;
-
-    if (typeof accessToken !== "string" || typeof refreshToken !== "string") {
-      throw new Error(
-        `Account created but tokens missing from response. Got: ${JSON.stringify(data)}`,
-      );
-    }
-
-    await saveTokens(accessToken, refreshToken);
+    await saveTokens(data.accessToken, data.refreshToken);
+    await saveUser(data.user);
 
     setUser(data.user);
-    setAccessToken(accessToken);
-    setRefreshToken(refreshToken);
-    await debugTokens("after createAccount");
+    setAccessToken(data.accessToken);
+    setRefreshToken(data.refreshToken);
   };
 
   const logout = async () => {
@@ -133,6 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log("Logout request failed, clearing local tokens anyway", error);
     } finally {
       await clearTokens();
+      await clearUser();
 
       setUser(null);
       setAccessToken(null);

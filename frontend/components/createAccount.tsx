@@ -7,15 +7,21 @@ const CreateAccountBox = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { createAccount } = useAuth();
 
   const handleSubmit = async () => {
+    setError(null);
+    setIsLoading(true);
     try {
       await createAccount(username, email, password);
       router.replace("/pages/dashboard");
-    } catch (error) {
-      console.log("Account Creation failed", error);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Account creation failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -67,8 +73,10 @@ const CreateAccountBox = () => {
         />
       </View>
 
-      <Pressable style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitText}>Create Account</Text>
+      {error && <Text style={styles.errorText}>{error}</Text>}
+
+      <Pressable style={[styles.submitButton, isLoading && styles.submitButtonDisabled]} onPress={handleSubmit} disabled={isLoading}>
+        <Text style={styles.submitText}>{isLoading ? "Creating account..." : "Create Account"}</Text>
       </Pressable>
 
       <Text style={styles.p}>
@@ -160,6 +168,16 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 15,
     fontWeight: "500",
+  },
+
+  submitButtonDisabled: {
+    opacity: 0.6,
+  },
+
+  errorText: {
+    color: "#e53935",
+    fontSize: 13,
+    textAlign: "center",
   },
 
   p: {

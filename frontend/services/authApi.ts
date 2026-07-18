@@ -1,7 +1,5 @@
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 
-console.log("API_URL: ", API_URL);
-
 export async function createAccountRequest(
   username: string,
   email: string,
@@ -60,9 +58,27 @@ export async function logoutRequest(refreshToken: string) {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      refreshToken,
-    }),
+    body: JSON.stringify({ refreshToken }),
+  });
+
+  return res.json();
+}
+
+export async function refreshTokenRequest(
+  refreshToken: string,
+  deviceInfo: {
+    brand: string | null;
+    modelName: string | null;
+    osName: string | null;
+    osVersion: string | null;
+  },
+) {
+  const res = await fetch(`${API_URL}/auth/refresh`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ refreshToken, deviceInfo }),
   });
 
   return res.json();

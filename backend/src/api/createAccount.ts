@@ -23,9 +23,8 @@ app.post("/auth/register", async (c) => {
 
     const hashedPassowrd = await bcrypt.hash(password, saltRounds);
 
-    //insert into db here
-
     //fix this later rn some of the columns are not the correct data - like online status and what not
+    //right now role is hardcoded
     const user =
       await dbConfig`INSERT INTO users (username, email, password, role, email_verified, status, profile_completed)
                 VALUES (${username}, ${email}, ${hashedPassowrd}, 'user', ${false}, 'online', ${false})

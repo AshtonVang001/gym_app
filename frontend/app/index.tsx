@@ -1,6 +1,6 @@
 import StartPage from "./pages/startPage";
-import { Pressable, ScrollView } from "react-native";
-import { Stack, router } from "expo-router";
+import { ScrollView } from "react-native";
+import { Stack } from "expo-router";
 
 export default function Index() {
   return (
@@ -8,8 +8,6 @@ export default function Index() {
       <Stack.Screen options={{ headerBackVisible: false }} />
       <ScrollView>
         <StartPage />
-        <Pressable onPress={() => {router.push("/pages/dashboard")}}>
-        </Pressable>
       </ScrollView>
     </>
   );

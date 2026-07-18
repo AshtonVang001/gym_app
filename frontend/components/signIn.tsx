@@ -6,15 +6,21 @@ import { useAuth } from "@/context/AuthContext";
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { login } = useAuth();
 
   const handleSubmit = async () => {
+    setError(null);
+    setIsLoading(true);
     try {
       await login(email, password);
       router.replace("/pages/dashboard");
-    } catch (error) {
-      console.log("Login failed", error);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -61,8 +67,10 @@ export default function LoginForm() {
         </Pressable>
       </View>
 
-      <Pressable style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitText}>Sign In</Text>
+      {error && <Text style={styles.errorText}>{error}</Text>}
+
+      <Pressable style={[styles.submitButton, isLoading && styles.submitButtonDisabled]} onPress={handleSubmit} disabled={isLoading}>
+        <Text style={styles.submitText}>{isLoading ? "Signing in..." : "Sign In"}</Text>
       </Pressable>
 
       <Text style={styles.p}>
@@ -171,6 +179,16 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 15,
     fontWeight: "500",
+  },
+
+  submitButtonDisabled: {
+    opacity: 0.6,
+  },
+
+  errorText: {
+    color: "#e53935",
+    fontSize: 13,
+    textAlign: "center",
   },
 
   p: {
