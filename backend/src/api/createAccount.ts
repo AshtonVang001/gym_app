@@ -27,7 +27,7 @@ app.post("/auth/register", async (c) => {
     const user =
       await dbConfig`INSERT INTO users (username, email, password, role, email_verified, status, profile_completed)
                 VALUES (${username}, ${email}, ${hashedPassowrd}, 'user', ${false}, 'online', ${false})
-                RETURNING id, username, email, created_at`;
+                RETURNING id, username, email, role, created_at`;
 
     const { accessToken, refreshToken } = await createTokens(user, deviceInfo);
 
