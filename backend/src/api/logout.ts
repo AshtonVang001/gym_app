@@ -1,6 +1,7 @@
 import { app } from "../app.js";
 import { dbConfig } from "./dbconnect.js";
 import crypto from "crypto";
+import logger from "../utils/logger.js";
 
 app.post("/auth/logout", async (c) => {
   try {
@@ -17,8 +18,11 @@ app.post("/auth/logout", async (c) => {
 
     await dbConfig`DELETE FROM refresh_tokens WHERE token_hash = ${hashedRefresh}`;
 
+    logger.info("logout successful");
+
     return c.json({ success: true, message: "Logged out successfully" });
   } catch (error) {
+    logger.error({ err: error }, "logout error");
     return c.json({ success: false, message: `Error: ${error}` }, 500);
   }
 });

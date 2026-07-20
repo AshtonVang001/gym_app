@@ -3,6 +3,7 @@ import { dbConfig } from "./dbconnect.js";
 import { createTokens } from "../utils/createTokens.js";
 import * as bcrypt from "bcrypt";
 import "dotenv/config";
+import logger from "../utils/logger.js";
 
 app.post("/auth/register", async (c) => {
   const saltRounds = 10;
@@ -31,6 +32,8 @@ app.post("/auth/register", async (c) => {
 
     const { accessToken, refreshToken } = await createTokens(user, deviceInfo);
 
+    logger.info({ userId: user[0].id, username: user[0].username }, "account created");
+
     return c.json(
       {
         success: true,
@@ -46,7 +49,7 @@ app.post("/auth/register", async (c) => {
       201,
     );
   } catch (error) {
-    console.error("Error createding account: ", error);
+    logger.error({ err: error }, "account creation failed");
     return c.json(
       {
         success: false,

@@ -3,6 +3,7 @@ import { dbConfig } from "./dbconnect.js";
 import { createTokens } from "../utils/createTokens.js";
 import * as bcrypt from "bcrypt";
 import "dotenv/config";
+import logger from "../utils/logger.js";
 
 app.post("/auth/login", async (c) => {
   try {
@@ -12,8 +13,9 @@ app.post("/auth/login", async (c) => {
       await dbConfig`SELECT id, email, username, password FROM users WHERE email = ${email}`;
 
     if (user.length === 0) {
+      logger.warn({ email }, "login failed: user not found");
       return c.json(
-        { success: false, message: "Invalid email or passowrd" },
+        { success: false, message: "Invalid email or password" },
         401,
       );
     }
@@ -21,10 +23,13 @@ app.post("/auth/login", async (c) => {
     const passowordMatches = await bcrypt.compare(password, user[0].password);
 
     if (!passowordMatches) {
-      return c.json({ success: false, message: "Invalid email password" }, 401);
+      logger.warn({ email }, "login failed: wrong password");
+      return c.json({ success: false, message: "Invalid email or password" }, 401);
     }
 
     const { accessToken, refreshToken } = await createTokens(user, deviceInfo);
+
+    logger.info({ userId: user[0].id, username: user[0].username }, "login successful");
 
     return c.json({
       success: true,
@@ -38,6 +43,7 @@ app.post("/auth/login", async (c) => {
       refreshToken: refreshToken,
     });
   } catch (error) {
+    logger.error({ err: error }, "login error");
     return c.json({ success: false, message: `Error: ${error}` }, 500);
   }
 });

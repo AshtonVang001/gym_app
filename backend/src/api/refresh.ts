@@ -3,6 +3,7 @@ import { dbConfig } from "./dbconnect.js";
 import { sign } from "hono/jwt";
 import crypto from "crypto";
 import "dotenv/config";
+import logger from "../utils/logger.js";
 
 app.post("/auth/refresh", async (c) => {
   try {
@@ -21,8 +22,10 @@ app.post("/auth/refresh", async (c) => {
     const ID =
       await dbConfig`SELECT user_id, family_id FROM refresh_tokens WHERE token_hash = ${hashedRefresh} AND revoked = false AND expires_at > NOW()`;
 
-    if (ID.length === 0)
+    if (ID.length === 0) {
+      logger.warn("refresh failed: token not found, expired, or revoked");
       return c.json({ success: false, message: "Invalid token" }, 401);
+    }
 
     const user =
       await dbConfig`SELECT id, username, role FROM users WHERE id = ${ID[0].user_id}`;
@@ -58,6 +61,8 @@ app.post("/auth/refresh", async (c) => {
     await dbConfig`INSERT INTO refresh_tokens (user_id, expires_at, created_at, token_hash, device_info, family_id, last_used_at, revoked)
     VALUES (${user[0].id}, ${exp}, ${currentDate}, ${newHashedRefresh}, ${deviceInfo}, ${ID[0].family_id}, ${currentDate}, false)`;
 
+    logger.info({ userId: user[0].id, username: user[0].username }, "token refreshed");
+
     return c.json({
       success: true,
       message: "Successfully created new refresh token!",
@@ -69,8 +74,10 @@ app.post("/auth/refresh", async (c) => {
       refreshToken: newRefreshToken,
     });
   } catch (error) {
+    logger.error({ err: error }, "token refresh error");
     return c.json({
+      success: false,
       message: `Could not create new token: ${error}`,
-    });
+    }, 500);
   }
 });
