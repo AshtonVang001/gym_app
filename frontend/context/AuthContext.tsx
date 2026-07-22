@@ -38,7 +38,6 @@ type User = {
 type AuthContextType = {
   user: User;
   accessToken: string | null;
-  refreshToken: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   createAccount: (
@@ -174,7 +173,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         accessToken,
-        refreshToken,
         isLoading,
         createAccount,
         login,
