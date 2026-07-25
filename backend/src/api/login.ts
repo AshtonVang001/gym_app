@@ -30,6 +30,7 @@ app.post("/auth/login", async (c) => {
     const { accessToken, refreshToken } = await createTokens(user, deviceInfo);
 
     logger.info({ userId: user[0].id, username: user[0].username }, "login successful");
+    console.log(accessToken);
 
     return c.json({
       success: true,

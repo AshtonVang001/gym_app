@@ -4,6 +4,7 @@ import "./api/createAccount.js";
 import "./api/login.js";
 import "./api/logout.js";
 import "./api/refresh.js";
+import "./api/uploadImage.js"
 import "dotenv/config";
 import logger from "./utils/logger.js";
 

@@ -6,7 +6,10 @@ type RequestOptions = {
   token?: string;
 };
 
-async function request<T = unknown>(path: string, options: RequestOptions = {}): Promise<T> {
+async function request<T = unknown>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<T> {
   const { method = "GET", body, token } = options;
 
   const headers: Record<string, string> = {

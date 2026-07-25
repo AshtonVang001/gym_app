@@ -12,7 +12,8 @@ export const createAccountRequest = (
   email: string,
   password: string,
   deviceInfo: DeviceInfo,
-) => apiClient.post("/auth/register", { username, email, password, deviceInfo });
+) =>
+  apiClient.post("/auth/register", { username, email, password, deviceInfo });
 
 export const loginRequest = (
   email: string,
@@ -23,5 +24,7 @@ export const loginRequest = (
 export const logoutRequest = (refreshToken: string) =>
   apiClient.post("/auth/logout", { refreshToken });
 
-export const refreshTokenRequest = (refreshToken: string, deviceInfo: DeviceInfo) =>
-  apiClient.post("/auth/refresh", { refreshToken, deviceInfo });
+export const refreshTokenRequest = (
+  refreshToken: string,
+  deviceInfo: DeviceInfo,
+) => apiClient.post("/auth/refresh", { refreshToken, deviceInfo });
