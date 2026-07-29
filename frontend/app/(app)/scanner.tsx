@@ -1,8 +1,4 @@
-import {
-  CameraView,
-  CameraType,
-  useCameraPermissions,
-} from "expo-camera";
+import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { useState, useRef, useCallback } from "react";
 import {
   Button,
@@ -15,8 +11,11 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, router } from "expo-router";
+import { uploadImage } from "@/services/authApi";
+import { useAuth } from "@/context/AuthContext";
 
 const ScannerPage = () => {
+  const { accessToken } = useAuth();
   const [facing, setFacing] = useState<CameraType>("back");
   const ref = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
@@ -59,6 +58,12 @@ const ScannerPage = () => {
     lastTap.current = now;
   }, []);
 
+  const submitPhoto = async () => {
+    if (uri) {
+      await uploadImage(uri, accessToken ?? undefined);
+    }
+  };
+
   if (uri) {
     return (
       <View style={styles.container}>
@@ -70,9 +75,19 @@ const ScannerPage = () => {
           ]}
           resizeMode="cover"
         />
-        <TouchableOpacity style={styles.retakeButton} onPress={() => setUri(null)}>
-          <Text style={styles.retakeText}>Retake</Text>
-        </TouchableOpacity>
+        <View style={styles.photoActions}>
+          <TouchableOpacity
+            style={styles.retakeButton}
+            onPress={() => setUri(null)}
+          >
+            <Text style={styles.retakeText}>Retake</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.submitButton}>
+            <Pressable onPress={submitPhoto}>
+              <Text style={styles.submitText}>Submit</Text>
+            </Pressable>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
@@ -83,11 +98,17 @@ const ScannerPage = () => {
       <CameraView style={styles.camera} facing={facing} ref={ref}>
         <Pressable style={StyleSheet.absoluteFill} onPress={handleDoubleTap} />
 
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
           <Ionicons name="chevron-back" size={28} color="#fff" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.flipButton} onPress={toggleCameraFacing}>
+        <TouchableOpacity
+          style={styles.flipButton}
+          onPress={toggleCameraFacing}
+        >
           <Ionicons name="camera-reverse-outline" size={28} color="#fff" />
         </TouchableOpacity>
 
@@ -159,16 +180,38 @@ const styles = StyleSheet.create({
     borderRadius: 32,
     backgroundColor: "#fff",
   },
-  retakeButton: {
+  photoActions: {
     position: "absolute",
     bottom: 48,
-    alignSelf: "center",
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 16,
+    paddingHorizontal: 32,
+  },
+  retakeButton: {
+    flex: 1,
+    alignItems: "center",
     backgroundColor: "rgba(0,0,0,0.5)",
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderRadius: 24,
+    borderWidth: 1.5,
+    borderColor: "rgba(255,255,255,0.4)",
   },
   retakeText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  submitButton: {
+    flex: 1,
+    alignItems: "center",
+    backgroundColor: "#2d79f3",
+    paddingVertical: 14,
+    borderRadius: 24,
+  },
+  submitText: {
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
