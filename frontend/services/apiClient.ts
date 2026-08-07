@@ -39,15 +39,11 @@ async function upload<T = unknown>(
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
-
-  //console.log("form data: ", formData);
   const res = await fetch(`${API_URL}${path}`, {
     method: "POST",
     headers,
     body: formData,
   });
-
-  console.log("res.body: ", res.body)
 
   return res.json() as Promise<T>;
 }

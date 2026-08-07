@@ -17,13 +17,21 @@ app.post(
 
       console.log(payload);
       const body = await c.req.parseBody();
+      console.log("body: ", body);
       const image = body["image"];
       console.log("image: ", image);
-      return c.json({
-        success: true,
-        message: "Successfully uploaded image!",
-        image: image,
-      });
+      return c.json(
+        {
+          success: true,
+          message: "Successfully uploaded image!",
+          image: {
+            name: (image as File).name,
+            size: (image as File).size,
+            type: (image as File).type,
+          },
+        },
+        200,
+      );
     } catch (error) {
       logger.error({ err: error }, "image upload error");
       return c.json({ success: false, message: `Error: ${error}` }, 500);

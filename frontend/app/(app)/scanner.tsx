@@ -60,8 +60,10 @@ const ScannerPage = () => {
 
   const submitPhoto = async () => {
     if (uri) {
-      await uploadImage(uri, accessToken ?? undefined);
+      const imageUploaded = await uploadImage(uri, accessToken ?? undefined);
     }
+
+    
   };
 
   if (uri) {
