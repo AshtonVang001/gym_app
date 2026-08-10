@@ -22,7 +22,7 @@ import {
 } from "@/services/authApi";
 import * as Device from "expo-device";
 
-const deviceInfo = {
+export const deviceInfo = {
   brand: Device.brand,
   modelName: Device.modelName,
   osName: Device.osName,
@@ -45,6 +45,7 @@ type AuthContextType = {
     email: string,
     password: string,
   ) => Promise<void>;
+  refreshTokens: (refreshToken: string) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: User) => void;
 };
@@ -149,6 +150,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setRefreshToken(data.refreshToken);
   };
 
+  const refreshTokens = async (refreshToken: string) => {
+    const data = await refreshTokenRequest(refreshToken, deviceInfo);
+
+    if (!data.success) {
+      throw new Error(data.message || "Failed to refresh tokens");
+    }
+
+    await saveTokens(data.accessToken, data.refreshToken);
+
+    setAccessToken(data.accessToken);
+    setRefreshToken(data.refreshToken);
+  };
+
   const logout = async () => {
     try {
       const tokens = await getTokens();
@@ -178,6 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         setUser,
+        refreshTokens,
       }}
     >
       {children}

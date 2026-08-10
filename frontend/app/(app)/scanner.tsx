@@ -11,11 +11,13 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, router } from "expo-router";
-import { uploadImage } from "@/services/authApi";
-import { useAuth } from "@/context/AuthContext";
+import { uploadImage, refreshTokenRequest } from "@/services/authApi";
+import { useAuth, deviceInfo } from "@/context/AuthContext";
+import { getTokens } from "@/storage/authStorage";
 
 const ScannerPage = () => {
   const { accessToken } = useAuth();
+  const { refreshTokens } = useAuth();
   const [facing, setFacing] = useState<CameraType>("back");
   const ref = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
@@ -59,8 +61,15 @@ const ScannerPage = () => {
   }, []);
 
   const submitPhoto = async () => {
+    //check for 401 status code for refresh
     if (uri) {
       const imageUploaded = await uploadImage(uri, accessToken ?? undefined);
+      if(imageUploaded.status == 401){
+        const tokens = await getTokens();
+        //call refresh here
+        await refreshTokens(tokens.refreshToken!);
+        //now needs to recall upload route
+      }
     }
 
     

@@ -11,7 +11,8 @@ export const createTokens = async (
   const accessPayload = {
     sub: user[0].username,
     role: user[0].role,
-    exp: Math.floor(Date.now() / 1000) + 60 * 15, //15 minutes
+    //exp: Math.floor(Date.now() / 1000) + 60 * 15, //15 minutes
+    exp: Math.floor(Date.now() / 1000) + 30, // 30 seconds
   };
 
   const secret = process.env.ACCESS_SECRET!;

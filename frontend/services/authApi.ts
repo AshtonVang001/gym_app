@@ -23,6 +23,16 @@ interface AccountResponse {
   refreshToken: string;
 }
 
+interface UploadResponse {
+  success: boolean;
+  message: string;
+  image?: {
+    name: string;
+    size: number;
+    type: string;
+  };
+}
+
 type DeviceInfo = {
   brand: string | null;
   modelName: string | null;
@@ -54,7 +64,7 @@ export const refreshTokenRequest = (
 ): Promise<RefreshResponse> =>
   apiClient.post("/auth/refresh", { refreshToken, deviceInfo });
 
-export const uploadImage = (uri: string, token?: string) => {
+export const uploadImage = (uri: string, token?: string): Promise<{ status: number } & UploadResponse> => {
   const formData = new FormData();
   formData.append("image", {
     uri,

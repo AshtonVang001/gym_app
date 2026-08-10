@@ -33,19 +33,21 @@ async function upload<T = unknown>(
   path: string,
   formData: FormData,
   token?: string,
-): Promise<T> {
+): Promise<{ status: number } & T> {
   const headers: Record<string, string> = {};
 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
+
   const res = await fetch(`${API_URL}${path}`, {
     method: "POST",
     headers,
     body: formData,
   });
 
-  return res.json() as Promise<T>;
+  const data = await res.json().catch(() => ({}) as T);
+  return { status: res.status, ...data };
 }
 
 export const apiClient = {
