@@ -61,18 +61,14 @@ const ScannerPage = () => {
   }, []);
 
   const submitPhoto = async () => {
-    //check for 401 status code for refresh
     if (uri) {
       const imageUploaded = await uploadImage(uri, accessToken ?? undefined);
-      if(imageUploaded.status == 401){
+      if (imageUploaded.status == 401) {
         const tokens = await getTokens();
-        //call refresh here
-        await refreshTokens(tokens.refreshToken!);
-        //now needs to recall upload route
+        const newAccessToken = await refreshTokens(tokens.refreshToken!);
+        await uploadImage(uri, newAccessToken);
       }
     }
-
-    
   };
 
   if (uri) {

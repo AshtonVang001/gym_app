@@ -45,7 +45,7 @@ type AuthContextType = {
     email: string,
     password: string,
   ) => Promise<void>;
-  refreshTokens: (refreshToken: string) => Promise<void>;
+  refreshTokens: (refreshToken: string) => Promise<string>;
   logout: () => Promise<void>;
   setUser: (user: User) => void;
 };
@@ -150,7 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setRefreshToken(data.refreshToken);
   };
 
-  const refreshTokens = async (refreshToken: string) => {
+  const refreshTokens = async (refreshToken: string): Promise<string> => {
     const data = await refreshTokenRequest(refreshToken, deviceInfo);
 
     if (!data.success) {
@@ -161,6 +161,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     setAccessToken(data.accessToken);
     setRefreshToken(data.refreshToken);
+
+    return data.accessToken;
   };
 
   const logout = async () => {
