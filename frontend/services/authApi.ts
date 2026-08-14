@@ -64,7 +64,7 @@ export const refreshTokenRequest = (
 ): Promise<RefreshResponse> =>
   apiClient.post("/auth/refresh", { refreshToken, deviceInfo });
 
-export const uploadImage = (uri: string, token?: string): Promise<{ status: number } & UploadResponse> => {
+export const uploadImage = (uri: string): Promise<{ status: number } & UploadResponse> => {
   const formData = new FormData();
   formData.append("image", {
     uri,
@@ -72,5 +72,5 @@ export const uploadImage = (uri: string, token?: string): Promise<{ status: numb
     name: "photo.jpg",
   } as unknown as Blob);
 
-  return apiClient.upload("/upload", formData, token);
+  return apiClient.upload("/upload", formData);
 };

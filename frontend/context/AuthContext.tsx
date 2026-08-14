@@ -3,6 +3,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useRef,
   ReactNode,
 } from "react";
 
@@ -20,6 +21,7 @@ import {
   logoutRequest,
   refreshTokenRequest,
 } from "@/services/authApi";
+import { configureApiClient } from "@/services/apiClient";
 import * as Device from "expo-device";
 
 export const deviceInfo = {
@@ -66,6 +68,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const accessTokenRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    accessTokenRef.current = accessToken;
+  }, [accessToken]);
+
+  useEffect(() => {
+    configureApiClient({
+      getToken: () => accessTokenRef.current,
+      onRefresh: async () => {
+        const { refreshToken: storedRefresh } = await getTokens();
+        if (!storedRefresh) throw new Error("No refresh token available");
+        const data = await refreshTokenRequest(storedRefresh, deviceInfo);
+        if (!data.success) throw new Error(data.message || "Token refresh failed");
+        await saveTokens(data.accessToken, data.refreshToken);
+        accessTokenRef.current = data.accessToken;
+        setAccessToken(data.accessToken);
+        setRefreshToken(data.refreshToken);
+        return data.accessToken;
+      },
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const loadStoredTokens = async () => {
