@@ -1,5 +1,5 @@
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import {
   ActivityIndicator,
   Button,
@@ -16,8 +16,11 @@ import { scanPhysique } from "@/services/authApi";
 import type { PhysiqueScan } from "@/types/types";
 import ScanResults from "@/components/scanner/ScanResults";
 
+const TIMER_OPTIONS = [0, 3, 5, 10] as const;
+type TimerOption = (typeof TIMER_OPTIONS)[number];
+
 const ScannerPage = () => {
-  // All hooks must be declared before any early returns
+  // All hooks before any early returns
   const [facing, setFacing] = useState<CameraType>("back");
   const ref = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
@@ -27,6 +30,17 @@ const ScannerPage = () => {
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<PhysiqueScan | null>(null);
   const [scanError, setScanError] = useState<string | null>(null);
+
+  const [timerDuration, setTimerDuration] = useState<TimerOption>(0);
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Clear interval on unmount
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
 
   const toggleCameraFacing = useCallback(() => {
     setFacing((current) => (current === "back" ? "front" : "back"));
@@ -43,6 +57,14 @@ const ScannerPage = () => {
     setScanResult(null);
     setScanError(null);
     setScanning(false);
+  }, []);
+
+  const cancelCountdown = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setCountdown(null);
   }, []);
 
   // Early returns after all hooks
@@ -67,6 +89,28 @@ const ScannerPage = () => {
       setPhotoFacing(facing);
       setUri(photo.uri);
     }
+  };
+
+  const handleShutter = () => {
+    if (timerDuration === 0) {
+      takePicture();
+      return;
+    }
+
+    setCountdown(timerDuration);
+    let remaining = timerDuration;
+
+    intervalRef.current = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(intervalRef.current!);
+        intervalRef.current = null;
+        setCountdown(null);
+        takePicture();
+      } else {
+        setCountdown(remaining);
+      }
+    }, 1000);
   };
 
   const submitPhoto = async () => {
@@ -133,26 +177,78 @@ const ScannerPage = () => {
     );
   }
 
-  // Camera view — controls are siblings of CameraView, not children
+  // Camera view
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
       <CameraView style={StyleSheet.absoluteFill} facing={facing} ref={ref} />
-      <Pressable style={StyleSheet.absoluteFill} onPress={handleDoubleTap} />
+      <Pressable
+        style={StyleSheet.absoluteFill}
+        onPress={countdown === null ? handleDoubleTap : undefined}
+      />
 
-      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-        <Ionicons name="chevron-back" size={28} color="#fff" />
-      </TouchableOpacity>
+      {/* Countdown overlay */}
+      {countdown !== null && (
+        <View style={styles.countdownOverlay}>
+          <Text style={styles.countdownNumber}>{countdown}</Text>
+          <TouchableOpacity style={styles.cancelButton} onPress={cancelCountdown}>
+            <Text style={styles.cancelText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
-      <TouchableOpacity style={styles.flipButton} onPress={toggleCameraFacing}>
-        <Ionicons name="camera-reverse-outline" size={28} color="#fff" />
-      </TouchableOpacity>
+      {/* Top controls — hidden during countdown */}
+      {countdown === null && (
+        <>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Ionicons name="chevron-back" size={28} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.flipButton} onPress={toggleCameraFacing}>
+            <Ionicons name="camera-reverse-outline" size={28} color="#fff" />
+          </TouchableOpacity>
+        </>
+      )}
 
-      <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.shutterOuter} onPress={takePicture}>
-          <View style={styles.shutterInner} />
-        </TouchableOpacity>
-      </View>
+      {/* Bottom bar — hidden during countdown */}
+      {countdown === null && (
+        <View style={styles.bottomBar}>
+          {/* Timer selector */}
+          <View style={styles.timerRow}>
+            {TIMER_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option}
+                style={[
+                  styles.timerOption,
+                  timerDuration === option && styles.timerOptionActive,
+                ]}
+                onPress={() => setTimerDuration(option)}
+              >
+                {option === 0 ? (
+                  <Ionicons
+                    name="timer-outline"
+                    size={16}
+                    color={timerDuration === 0 ? "#fff" : "rgba(255,255,255,0.5)"}
+                  />
+                ) : (
+                  <Text
+                    style={[
+                      styles.timerOptionText,
+                      timerDuration === option && styles.timerOptionTextActive,
+                    ]}
+                  >
+                    {option}s
+                  </Text>
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* Shutter */}
+          <TouchableOpacity style={styles.shutterOuter} onPress={handleShutter}>
+            <View style={styles.shutterInner} />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
@@ -196,6 +292,33 @@ const styles = StyleSheet.create({
     bottom: 48,
     width: "100%",
     alignItems: "center",
+    gap: 20,
+  },
+  timerRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  timerOption: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 20,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    borderWidth: 1.5,
+    borderColor: "rgba(255,255,255,0.15)",
+    minWidth: 44,
+    alignItems: "center",
+  },
+  timerOptionActive: {
+    backgroundColor: "rgba(45,121,243,0.75)",
+    borderColor: "#2d79f3",
+  },
+  timerOptionText: {
+    color: "rgba(255,255,255,0.5)",
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  timerOptionTextActive: {
+    color: "#fff",
   },
   shutterOuter: {
     width: 80,
@@ -211,6 +334,33 @@ const styles = StyleSheet.create({
     height: 64,
     borderRadius: 32,
     backgroundColor: "#fff",
+  },
+  countdownOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 40,
+  },
+  countdownNumber: {
+    color: "#fff",
+    fontSize: 120,
+    fontWeight: "800",
+    textShadowColor: "rgba(0,0,0,0.6)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 12,
+  },
+  cancelButton: {
+    paddingHorizontal: 32,
+    paddingVertical: 13,
+    borderRadius: 24,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    borderWidth: 1.5,
+    borderColor: "rgba(255,255,255,0.4)",
+  },
+  cancelText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
   },
   photoActions: {
     position: "absolute",

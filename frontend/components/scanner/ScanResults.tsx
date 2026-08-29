@@ -11,15 +11,23 @@ type Props = {
 const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const devConfig = {
-  strong:      { label: "Strong",      color: Colors.green,  bg: "rgba(76,175,80,0.15)"   },
-  average:     { label: "Average",     color: Colors.slate,  bg: "rgba(148,163,184,0.15)" },
-  needs_focus: { label: "Needs Focus", color: Colors.orange, bg: "rgba(255,107,53,0.15)"  },
+  strong:      { label: "Strong",      color: Colors.green,  bg: "rgba(76,175,80,0.12)"   },
+  average:     { label: "Average",     color: Colors.muted,  bg: "rgba(0,0,0,0.06)"       },
+  needs_focus: { label: "Needs Focus", color: Colors.orange, bg: "rgba(255,107,53,0.12)"  },
 } as const;
 
 const visConfig = {
-  clear:       { label: "Visible", color: Colors.primary, bg: "rgba(45,121,243,0.15)"   },
-  partial:     { label: "Partial", color: "#f59e0b",      bg: "rgba(245,158,11,0.15)"   },
-  not_visible: { label: "—",       color: Colors.slate,   bg: "rgba(148,163,184,0.08)"  },
+  clear:       { label: "Visible", color: Colors.primary, bg: "rgba(45,121,243,0.1)"  },
+  partial:     { label: "Partial", color: "#d97706",      bg: "rgba(217,119,6,0.1)"   },
+  not_visible: { label: "—",       color: Colors.muted,   bg: "rgba(0,0,0,0.05)"      },
+} as const;
+
+const cardShadow = {
+  shadowColor: "#000",
+  shadowOpacity: 0.05,
+  shadowRadius: 4,
+  shadowOffset: { width: 0, height: 2 },
+  elevation: 2,
 } as const;
 
 function Badge({ label, color, bg }: { label: string; color: string; bg: string }) {
@@ -36,9 +44,9 @@ function MuscleCard({ mg }: { mg: MuscleGroup }) {
   const isNotVisible = mg.visibility === "not_visible";
 
   return (
-    <View style={[styles.muscleCard, isNotVisible && styles.muscleCardDim]}>
+    <View style={[styles.card, isNotVisible && styles.muscleCardDim]}>
       <View style={styles.muscleRow}>
-        <Text style={[styles.muscleName, isNotVisible && styles.textDim]}>
+        <Text style={[styles.muscleName, isNotVisible && styles.textMuted]}>
           {capitalize(mg.muscle)}
         </Text>
         <View style={styles.badgeRow}>
@@ -61,7 +69,7 @@ function MuscleCard({ mg }: { mg: MuscleGroup }) {
 
 function RecCard({ rec }: { rec: Recommendation }) {
   return (
-    <View style={styles.recCard}>
+    <View style={[styles.card, styles.recCard]}>
       <Text style={styles.recMuscle}>{capitalize(rec.muscleGroup)}</Text>
       <Text style={styles.recText}>{rec.recommendation}</Text>
       <View style={styles.exerciseList}>
@@ -78,7 +86,7 @@ export default function ScanResults({ result, onNewScan }: Props) {
     <View style={styles.screen}>
       <View style={styles.header}>
         <TouchableOpacity onPress={onNewScan} style={styles.backBtn}>
-          <Ionicons name="chevron-back" size={24} color={Colors.slate} />
+          <Ionicons name="chevron-back" size={24} color={Colors.dark} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Physique Analysis</Text>
         <TouchableOpacity onPress={onNewScan} style={styles.newScanBtn}>
@@ -103,7 +111,7 @@ export default function ScanResults({ result, onNewScan }: Props) {
             <Text style={styles.cardLabel}>Strongest</Text>
             {result.strongestAreas.length > 0 ? (
               result.strongestAreas.map((area) => (
-                <View key={area} style={[styles.areaTag, { backgroundColor: "rgba(76,175,80,0.15)" }]}>
+                <View key={area} style={[styles.areaTag, { backgroundColor: "rgba(76,175,80,0.12)" }]}>
                   <Text style={[styles.areaTagText, { color: Colors.green }]}>{capitalize(area)}</Text>
                 </View>
               ))
@@ -115,7 +123,7 @@ export default function ScanResults({ result, onNewScan }: Props) {
             <Text style={styles.cardLabel}>Priority Areas</Text>
             {result.priorityAreas.length > 0 ? (
               result.priorityAreas.map((area) => (
-                <View key={area} style={[styles.areaTag, { backgroundColor: "rgba(255,107,53,0.15)" }]}>
+                <View key={area} style={[styles.areaTag, { backgroundColor: "rgba(255,107,53,0.12)" }]}>
                   <Text style={[styles.areaTagText, { color: Colors.orange }]}>{capitalize(area)}</Text>
                 </View>
               ))
@@ -150,7 +158,7 @@ export default function ScanResults({ result, onNewScan }: Props) {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: Colors.navy,
+    backgroundColor: Colors.background,
   },
   header: {
     flexDirection: "row",
@@ -159,8 +167,9 @@ const styles = StyleSheet.create({
     paddingTop: 56,
     paddingBottom: 14,
     paddingHorizontal: 16,
+    backgroundColor: Colors.white,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.07)",
+    borderBottomColor: Colors.border,
   },
   backBtn: {
     width: 36,
@@ -169,7 +178,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerTitle: {
-    color: "#fff",
+    color: Colors.dark,
     fontSize: 17,
     fontWeight: "700",
   },
@@ -180,7 +189,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   newScanBtnText: {
-    color: "#fff",
+    color: Colors.white,
     fontSize: 13,
     fontWeight: "600",
   },
@@ -190,20 +199,21 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   card: {
-    backgroundColor: Colors.navyLight,
-    borderRadius: 14,
-    padding: 16,
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    padding: 18,
     gap: 8,
+    ...cardShadow,
   },
   cardLabel: {
-    color: Colors.slate,
+    color: Colors.muted,
     fontSize: 11,
     fontWeight: "600",
     textTransform: "uppercase",
     letterSpacing: 0.8,
   },
   assessmentText: {
-    color: "#fff",
+    color: Colors.dark,
     fontSize: 15,
     lineHeight: 23,
   },
@@ -224,21 +234,15 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   emptyText: {
-    color: Colors.slate,
+    color: Colors.mutedLight,
     fontSize: 13,
   },
   sectionHeading: {
-    color: "#fff",
-    fontSize: 16,
+    color: Colors.dark,
+    fontSize: 18,
     fontWeight: "700",
     marginTop: 6,
     marginBottom: 2,
-  },
-  muscleCard: {
-    backgroundColor: Colors.navyLight,
-    borderRadius: 14,
-    padding: 14,
-    gap: 6,
   },
   muscleCardDim: { opacity: 0.45 },
   muscleRow: {
@@ -249,11 +253,11 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   muscleName: {
-    color: "#fff",
+    color: Colors.dark,
     fontSize: 15,
     fontWeight: "600",
   },
-  textDim: { color: Colors.slate },
+  textMuted: { color: Colors.mutedLight },
   badgeRow: {
     flexDirection: "row",
     gap: 6,
@@ -268,15 +272,11 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   muscleAssessment: {
-    color: Colors.slate,
+    color: Colors.muted,
     fontSize: 13,
     lineHeight: 20,
   },
   recCard: {
-    backgroundColor: Colors.navyLight,
-    borderRadius: 14,
-    padding: 16,
-    gap: 6,
     borderLeftWidth: 3,
     borderLeftColor: Colors.orange,
   },
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   recText: {
-    color: "#fff",
+    color: Colors.dark,
     fontSize: 14,
     lineHeight: 21,
   },
@@ -297,7 +297,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   exercise: {
-    color: Colors.slate,
+    color: Colors.muted,
     fontSize: 13,
     lineHeight: 20,
   },
