@@ -1,9 +1,9 @@
-import { app } from "../app.js";
-import { dbConfig } from "./dbconnect.js";
+import { app } from "../../app.js";
+import { dbConfig } from "../../api/dbconnect.js";
 import { sign } from "hono/jwt";
 import crypto from "crypto";
 import "dotenv/config";
-import logger from "../utils/logger.js";
+import logger from "../../utils/logger.js";
 
 app.post("/auth/refresh", async (c) => {
   try {

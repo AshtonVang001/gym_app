@@ -1,11 +1,11 @@
 import { serve } from "@hono/node-server";
 import { app } from "./app.js";
-import "./api/createAccount.js";
-import "./api/login.js";
-import "./api/logout.js";
-import "./api/refresh.js";
-import "./api/uploadImage.js";
-import { physiqueRouter } from "./routes/physique.js";
+import "./routes/auth/createAccount.js";
+import "./routes/auth/login.js";
+import "./routes/auth/logout.js";
+import "./routes/tokens/refresh.js";
+import "./routes/image/uploadImage.js";
+import { physiqueRouter } from "./routes/scan/physique.js";
 import "dotenv/config";
 import logger from "./utils/logger.js";
 

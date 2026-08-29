@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { jwt } from "hono/jwt";
 import OpenAI from "openai";
-import { analyzePhysique } from "../services/physiqueAnalyzer.js";
-import logger from "../utils/logger.js";
+import { analyzePhysique } from "../../services/physiqueAnalyzer.js";
+import logger from "../../utils/logger.js";
 
 //HTTP layer: auth, input checks, calls the service
 

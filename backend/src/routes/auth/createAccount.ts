@@ -1,9 +1,9 @@
-import { app } from "../app.js";
-import { dbConfig } from "./dbconnect.js";
-import { createTokens } from "../utils/createTokens.js";
+import { app } from "../../app.js";
+import { dbConfig } from "../../api/dbconnect.js";
+import { createTokens } from "../../utils/createTokens.js";
 import * as bcrypt from "bcrypt";
 import "dotenv/config";
-import logger from "../utils/logger.js";
+import logger from "../../utils/logger.js";
 
 app.post("/auth/register", async (c) => {
   const saltRounds = 10;

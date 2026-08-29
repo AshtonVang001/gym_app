@@ -1,5 +1,5 @@
-import { app } from "../app.js";
-import logger from "../utils/logger.js";
+import { app } from "../../app.js";
+import logger from "../../utils/logger.js";
 import { jwt } from "hono/jwt";
 
 app.post(

@@ -1,7 +1,7 @@
-import { app } from "../app.js";
-import { dbConfig } from "./dbconnect.js";
+import { app } from "../../app.js";
+import { dbConfig } from "../../api/dbconnect.js";
 import crypto from "crypto";
-import logger from "../utils/logger.js";
+import logger from "../../utils/logger.js";
 
 app.post("/auth/logout", async (c) => {
   try {
