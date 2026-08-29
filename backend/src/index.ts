@@ -4,9 +4,12 @@ import "./api/createAccount.js";
 import "./api/login.js";
 import "./api/logout.js";
 import "./api/refresh.js";
-import "./api/uploadImage.js"
+import "./api/uploadImage.js";
+import { physiqueRouter } from "./routes/physique.js";
 import "dotenv/config";
 import logger from "./utils/logger.js";
+
+app.route("/physique", physiqueRouter);
 
 serve(
   {

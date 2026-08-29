@@ -7,5 +7,9 @@ export default function AppLayout() {
   if (isLoading) return null;
   if (!user) return <Redirect href="/" />;
 
-  return <Stack screenOptions={{ title: "Gym App", animation: "none" }} />;
+  return (
+    <Stack screenOptions={{ title: "Gym App", animation: "none" }}>
+      <Stack.Screen name="scanner" options={{ headerShown: false }} />
+    </Stack>
+  );
 }

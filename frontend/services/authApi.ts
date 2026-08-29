@@ -1,4 +1,5 @@
 import { apiClient } from "./apiClient";
+import type { PhysiqueScan } from "@/types/types";
 
 interface RefreshResponse {
   success: boolean;
@@ -73,4 +74,21 @@ export const uploadImage = (uri: string): Promise<{ status: number } & UploadRes
   } as unknown as Blob);
 
   return apiClient.upload("/upload", formData);
+};
+
+interface ScanResponse {
+  success: boolean;
+  message?: string;
+  data?: PhysiqueScan;
+}
+
+export const scanPhysique = (uri: string): Promise<{ status: number } & ScanResponse> => {
+  const formData = new FormData();
+  formData.append("image", {
+    uri,
+    type: "image/jpeg",
+    name: "photo.jpg",
+  } as unknown as Blob);
+
+  return apiClient.upload("/physique/scan", formData);
 };

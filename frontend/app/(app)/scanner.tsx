@@ -1,6 +1,7 @@
 import { CameraView, CameraType, useCameraPermissions } from "expo-camera";
 import { useState, useRef, useCallback } from "react";
 import {
+  ActivityIndicator,
   Button,
   Pressable,
   StyleSheet,
@@ -11,16 +12,40 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, router } from "expo-router";
-import { uploadImage } from "@/services/authApi";
+import { scanPhysique } from "@/services/authApi";
+import type { PhysiqueScan } from "@/types/types";
+import ScanResults from "@/components/scanner/ScanResults";
 
 const ScannerPage = () => {
+  // All hooks must be declared before any early returns
   const [facing, setFacing] = useState<CameraType>("back");
   const ref = useRef<CameraView>(null);
   const [permission, requestPermission] = useCameraPermissions();
   const [uri, setUri] = useState<string | null>(null);
   const [photoFacing, setPhotoFacing] = useState<CameraType>("back");
   const lastTap = useRef<number>(0);
+  const [scanning, setScanning] = useState(false);
+  const [scanResult, setScanResult] = useState<PhysiqueScan | null>(null);
+  const [scanError, setScanError] = useState<string | null>(null);
 
+  const toggleCameraFacing = useCallback(() => {
+    setFacing((current) => (current === "back" ? "front" : "back"));
+  }, []);
+
+  const handleDoubleTap = useCallback(() => {
+    const now = Date.now();
+    if (now - lastTap.current < 300) toggleCameraFacing();
+    lastTap.current = now;
+  }, [toggleCameraFacing]);
+
+  const resetScan = useCallback(() => {
+    setUri(null);
+    setScanResult(null);
+    setScanError(null);
+    setScanning(false);
+  }, []);
+
+  // Early returns after all hooks
   if (!permission) {
     return <View />;
   }
@@ -44,23 +69,30 @@ const ScannerPage = () => {
     }
   };
 
-  const toggleCameraFacing = () => {
-    setFacing((current) => (current === "back" ? "front" : "back"));
-  };
-
-  const handleDoubleTap = useCallback(() => {
-    const now = Date.now();
-    if (now - lastTap.current < 300) {
-      toggleCameraFacing();
-    }
-    lastTap.current = now;
-  }, []);
-
   const submitPhoto = async () => {
     if (!uri) return;
-    await uploadImage(uri);
+    setScanning(true);
+    setScanError(null);
+    try {
+      const result = await scanPhysique(uri);
+      if (result.success && result.data) {
+        setScanResult(result.data);
+      } else {
+        setScanError(result.message ?? "Analysis failed. Please try again.");
+      }
+    } catch {
+      setScanError("Network error. Please check your connection and try again.");
+    } finally {
+      setScanning(false);
+    }
   };
 
+  // Results screen
+  if (scanResult) {
+    return <ScanResults result={scanResult} onNewScan={resetScan} />;
+  }
+
+  // Photo preview + loading/error states
   if (uri) {
     return (
       <View style={styles.container}>
@@ -72,49 +104,55 @@ const ScannerPage = () => {
           ]}
           resizeMode="cover"
         />
-        <View style={styles.photoActions}>
-          <TouchableOpacity
-            style={styles.retakeButton}
-            onPress={() => setUri(null)}
-          >
-            <Text style={styles.retakeText}>Retake</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.submitButton}>
-            <Pressable onPress={submitPhoto}>
-              <Text style={styles.submitText}>Submit</Text>
-            </Pressable>
-          </TouchableOpacity>
-        </View>
+
+        {scanning && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#fff" />
+            <Text style={styles.loadingText}>Analyzing physique...</Text>
+            <Text style={styles.loadingSubtext}>This may take a few seconds</Text>
+          </View>
+        )}
+
+        {scanError && !scanning && (
+          <View style={styles.errorBanner}>
+            <Text style={styles.errorText}>{scanError}</Text>
+          </View>
+        )}
+
+        {!scanning && (
+          <View style={styles.photoActions}>
+            <TouchableOpacity style={styles.retakeButton} onPress={resetScan}>
+              <Text style={styles.retakeText}>Retake</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.submitButton} onPress={submitPhoto}>
+              <Text style={styles.submitText}>{scanError ? "Try Again" : "Submit"}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     );
   }
 
+  // Camera view — controls are siblings of CameraView, not children
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerShown: false }} />
-      <CameraView style={styles.camera} facing={facing} ref={ref}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={handleDoubleTap} />
+      <CameraView style={StyleSheet.absoluteFill} facing={facing} ref={ref} />
+      <Pressable style={StyleSheet.absoluteFill} onPress={handleDoubleTap} />
 
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Ionicons name="chevron-back" size={28} color="#fff" />
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Ionicons name="chevron-back" size={28} color="#fff" />
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.flipButton} onPress={toggleCameraFacing}>
+        <Ionicons name="camera-reverse-outline" size={28} color="#fff" />
+      </TouchableOpacity>
+
+      <View style={styles.bottomBar}>
+        <TouchableOpacity style={styles.shutterOuter} onPress={takePicture}>
+          <View style={styles.shutterInner} />
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.flipButton}
-          onPress={toggleCameraFacing}
-        >
-          <Ionicons name="camera-reverse-outline" size={28} color="#fff" />
-        </TouchableOpacity>
-
-        <View style={styles.bottomBar}>
-          <TouchableOpacity style={styles.shutterOuter} onPress={takePicture}>
-            <View style={styles.shutterInner} />
-          </TouchableOpacity>
-        </View>
-      </CameraView>
+      </View>
     </View>
   );
 };
@@ -130,9 +168,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     paddingBottom: 10,
     color: "#fff",
-  },
-  camera: {
-    flex: 1,
   },
   backButton: {
     position: "absolute",
@@ -212,5 +247,37 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.72)",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 14,
+  },
+  loadingText: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  loadingSubtext: {
+    color: "rgba(255,255,255,0.55)",
+    fontSize: 14,
+  },
+  errorBanner: {
+    position: "absolute",
+    top: 60,
+    left: 20,
+    right: 20,
+    backgroundColor: "rgba(229,57,53,0.92)",
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  errorText: {
+    color: "#fff",
+    fontSize: 14,
+    textAlign: "center",
+    lineHeight: 20,
   },
 });
