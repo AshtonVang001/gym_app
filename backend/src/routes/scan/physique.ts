@@ -8,10 +8,10 @@ import logger from "../../utils/logger.js";
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
-export const physiqueRouter = new Hono();
+export const physiqueRoute = new Hono();
 
-physiqueRouter.post(
-  "/scan",
+physiqueRoute.post(
+  "/physique",
   jwt({ secret: process.env.ACCESS_SECRET!, alg: "HS256" }),
   async (c) => {
     const payload = c.get("jwtPayload") as { sub?: string };

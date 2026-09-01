@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import "dotenv/config";
 import logger from "./utils/logger.js";
+import { routes } from "./index.js";
 
 export const app = new Hono();
 
@@ -30,3 +31,5 @@ app.use("/*", async (c, next) => {
 });
 
 app.get("/", (c) => c.text("Hello Hono!"));
+
+app.route("/", routes);

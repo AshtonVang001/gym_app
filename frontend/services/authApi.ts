@@ -73,7 +73,7 @@ export const uploadImage = (uri: string): Promise<{ status: number } & UploadRes
     name: "photo.jpg",
   } as unknown as Blob);
 
-  return apiClient.upload("/upload", formData);
+  return apiClient.upload("/scan/upload", formData);
 };
 
 interface ScanResponse {
@@ -90,5 +90,5 @@ export const scanPhysique = (uri: string): Promise<{ status: number } & ScanResp
     name: "photo.jpg",
   } as unknown as Blob);
 
-  return apiClient.upload("/physique/scan", formData);
+  return apiClient.upload("/scan/physique", formData);
 };

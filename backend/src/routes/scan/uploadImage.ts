@@ -1,8 +1,10 @@
-import { app } from "../../app.js";
+import { Hono } from "hono";
 import logger from "../../utils/logger.js";
 import { jwt } from "hono/jwt";
 
-app.post(
+export const uploadImageRoute = new Hono();
+
+uploadImageRoute.post(
   "/upload",
   jwt({
     secret: process.env.ACCESS_SECRET!,

@@ -1,11 +1,14 @@
-import { app } from "../../app.js";
+import { Hono } from "hono";
 import { dbConfig } from "../../api/dbconnect.js";
 import { createTokens } from "../../utils/createTokens.js";
 import * as bcrypt from "bcrypt";
 import "dotenv/config";
 import logger from "../../utils/logger.js";
+import { log } from "console";
 
-app.post("/auth/login", async (c) => {
+export const loginRoutes = new Hono();
+
+loginRoutes.post("/login", async (c) => {
   try {
     const { email, password, deviceInfo } = await c.req.json();
 

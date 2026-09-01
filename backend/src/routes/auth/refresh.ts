@@ -1,11 +1,13 @@
-import { app } from "../../app.js";
+import { Hono } from "hono";
 import { dbConfig } from "../../api/dbconnect.js";
 import { sign } from "hono/jwt";
 import crypto from "crypto";
 import "dotenv/config";
 import logger from "../../utils/logger.js";
 
-app.post("/auth/refresh", async (c) => {
+export const refreshRoutes = new Hono();
+
+refreshRoutes.post("/refresh", async (c) => {
   try {
     const { refreshToken, deviceInfo } = await c.req.json();
 
@@ -61,7 +63,10 @@ app.post("/auth/refresh", async (c) => {
     await dbConfig`INSERT INTO refresh_tokens (user_id, expires_at, created_at, token_hash, device_info, family_id, last_used_at, revoked)
     VALUES (${user[0].id}, ${exp}, ${currentDate}, ${newHashedRefresh}, ${deviceInfo}, ${ID[0].family_id}, ${currentDate}, false)`;
 
-    logger.info({ userId: user[0].id, username: user[0].username }, "token refreshed");
+    logger.info(
+      { userId: user[0].id, username: user[0].username },
+      "token refreshed",
+    );
 
     return c.json({
       success: true,
@@ -75,9 +80,12 @@ app.post("/auth/refresh", async (c) => {
     });
   } catch (error) {
     logger.error({ err: error }, "token refresh error");
-    return c.json({
-      success: false,
-      message: `Could not create new token: ${error}`,
-    }, 500);
+    return c.json(
+      {
+        success: false,
+        message: `Could not create new token: ${error}`,
+      },
+      500,
+    );
   }
 });

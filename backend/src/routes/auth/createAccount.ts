@@ -1,11 +1,13 @@
-import { app } from "../../app.js";
+import { Hono } from "hono";
 import { dbConfig } from "../../api/dbconnect.js";
 import { createTokens } from "../../utils/createTokens.js";
 import * as bcrypt from "bcrypt";
 import "dotenv/config";
 import logger from "../../utils/logger.js";
 
-app.post("/auth/register", async (c) => {
+export const createAccountRoutes = new Hono(); 
+
+createAccountRoutes.post("/register", async (c) => {
   const saltRounds = 10;
 
   try {

@@ -1,9 +1,11 @@
-import { app } from "../../app.js";
+import { Hono } from "hono";
 import { dbConfig } from "../../api/dbconnect.js";
 import crypto from "crypto";
 import logger from "../../utils/logger.js";
 
-app.post("/auth/logout", async (c) => {
+export const logoutRoutes = new Hono();
+
+logoutRoutes.post("/logout", async (c) => {
   try {
     const { refreshToken } = await c.req.json();
 
