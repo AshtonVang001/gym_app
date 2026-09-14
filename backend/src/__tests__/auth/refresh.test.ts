@@ -1,9 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('dotenv/config', () => ({}))
+vi.mock('@hono/node-server', () => ({ serve: vi.fn() }))
+vi.mock('../../services/physiqueAnalyzer.js', () => ({ analyzePhysique: vi.fn() }))
 vi.mock('hono/jwt', () => ({
   sign: vi.fn().mockResolvedValue('new-access-token'),
   verify: vi.fn(),
+  jwt: vi.fn().mockReturnValue(async (_c: any, next: any) => next()),
 }))
 
 const mockDbConfig = vi.hoisted(() => vi.fn())
@@ -14,7 +17,7 @@ vi.mock('../../utils/logger.js', () => ({
 }))
 
 import { app } from '../../app.js'
-import '../../api/refresh.js'
+import '../../routes/auth/refresh.js'
 import { sign } from 'hono/jwt'
 
 describe('POST /auth/refresh', () => {

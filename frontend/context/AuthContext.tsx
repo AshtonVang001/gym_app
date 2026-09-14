@@ -79,9 +79,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       getToken: () => accessTokenRef.current,
       onRefresh: async () => {
         const { refreshToken: storedRefresh } = await getTokens();
-        if (!storedRefresh) throw new Error("No refresh token available");
+        if (!storedRefresh) {
+          await clearTokens();
+          await clearUser();
+          accessTokenRef.current = null;
+          setUser(null);
+          setAccessToken(null);
+          setRefreshToken(null);
+          throw new Error("No refresh token available");
+        }
         const data = await refreshTokenRequest(storedRefresh, deviceInfo);
-        if (!data.success) throw new Error(data.message || "Token refresh failed");
+        if (!data.success) {
+          await clearTokens();
+          await clearUser();
+          accessTokenRef.current = null;
+          setUser(null);
+          setAccessToken(null);
+          setRefreshToken(null);
+          throw new Error(data.message || "Token refresh failed");
+        }
         await saveTokens(data.accessToken, data.refreshToken);
         accessTokenRef.current = data.accessToken;
         setAccessToken(data.accessToken);

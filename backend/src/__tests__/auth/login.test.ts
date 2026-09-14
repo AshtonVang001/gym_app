@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 vi.mock('dotenv/config', () => ({}))
+vi.mock('@hono/node-server', () => ({ serve: vi.fn() }))
+vi.mock('../../services/physiqueAnalyzer.js', () => ({ analyzePhysique: vi.fn() }))
 
 const mockDbConfig = vi.hoisted(() => vi.fn())
 const mockCreateTokens = vi.hoisted(() => vi.fn())
@@ -16,7 +18,6 @@ vi.mock('bcrypt', () => ({
 }))
 
 import { app } from '../../app.js'
-import '../../api/login.js'
 import * as bcrypt from 'bcrypt'
 
 describe('POST /auth/login', () => {

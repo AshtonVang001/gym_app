@@ -124,8 +124,14 @@ const ScannerPage = () => {
       } else {
         setScanError(result.message ?? "Analysis failed. Please try again.");
       }
-    } catch {
-      setScanError("Network error. Please check your connection and try again.");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "";
+      const isAuthError = msg.includes("refresh") || msg.includes("token") || msg.includes("Unauthorized");
+      setScanError(
+        isAuthError
+          ? "Session expired. Please log in again."
+          : "Network error. Please check your connection and try again.",
+      );
     } finally {
       setScanning(false);
     }
@@ -336,7 +342,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   countdownOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     justifyContent: "center",
     alignItems: "center",
     gap: 40,
@@ -399,7 +405,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: "rgba(0,0,0,0.72)",
     justifyContent: "center",
     alignItems: "center",

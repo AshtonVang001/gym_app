@@ -65,13 +65,13 @@ export const refreshTokenRequest = (
 ): Promise<RefreshResponse> =>
   apiClient.post("/auth/refresh", { refreshToken, deviceInfo });
 
-export const uploadImage = (uri: string): Promise<{ status: number } & UploadResponse> => {
+export const uploadImage = async (uri: string): Promise<{ status: number } & UploadResponse> => {
+  const localResponse = await fetch(uri);
+  const blob = await localResponse.blob();
+  const imageBlob = blob.type ? blob : new Blob([blob], { type: "image/jpeg" });
+
   const formData = new FormData();
-  formData.append("image", {
-    uri,
-    type: "image/jpeg",
-    name: "photo.jpg",
-  } as unknown as Blob);
+  formData.append("image", imageBlob, "photo.jpg");
 
   return apiClient.upload("/scan/upload", formData);
 };
@@ -82,13 +82,13 @@ interface ScanResponse {
   data?: PhysiqueScan;
 }
 
-export const scanPhysique = (uri: string): Promise<{ status: number } & ScanResponse> => {
+export const scanPhysique = async (uri: string): Promise<{ status: number } & ScanResponse> => {
+  const localResponse = await fetch(uri);
+  const blob = await localResponse.blob();
+  const imageBlob = blob.type ? blob : new Blob([blob], { type: "image/jpeg" });
+
   const formData = new FormData();
-  formData.append("image", {
-    uri,
-    type: "image/jpeg",
-    name: "photo.jpg",
-  } as unknown as Blob);
+  formData.append("image", imageBlob, "photo.jpg");
 
   return apiClient.upload("/scan/physique", formData);
 };
