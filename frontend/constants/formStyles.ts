@@ -87,4 +87,7 @@ export const formStyles = StyleSheet.create({
   btnText: {
     fontWeight: "500",
   },
+  rememberMeRow: { flexDirection: "row", alignItems: "center", gap: 5 },
+  checkboxIcon: { fontSize: 16 },
+  rememberMeText: { fontSize: 14, color: Colors.dark, fontWeight: "400" },
 });

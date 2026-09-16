@@ -1,5 +1,5 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
-import { Colors } from "@/constants/theme";
+import { View, Text, Pressable } from "react-native";
+import { dashboardSectionStyles as styles } from "@/constants/dashboardSectionStyles";
 
 type Props = {
   title: string;
@@ -21,25 +21,3 @@ export default function DashboardSection({ title, actionLabel, onAction, childre
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  section: { marginBottom: 24 },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  title: { color: Colors.dark, fontSize: 18, fontWeight: "700" },
-  action: { color: Colors.primary, fontSize: 13, fontWeight: "600" },
-  card: {
-    backgroundColor: Colors.white,
-    borderRadius: 16,
-    padding: 18,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-});

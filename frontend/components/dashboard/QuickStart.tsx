@@ -1,6 +1,7 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/theme";
+import { quickStartStyles as styles } from "@/constants/quickStartStyles";
 
 export default function QuickStart() {
   return (
@@ -26,41 +27,3 @@ export default function QuickStart() {
   );
 }
 
-const styles = StyleSheet.create({
-  section: { marginBottom: 24 },
-  sectionTitle: { color: Colors.dark, fontSize: 18, fontWeight: "700", marginBottom: 12 },
-  card: {
-    backgroundColor: Colors.white,
-    borderRadius: 16,
-    padding: 18,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  workoutName: { color: Colors.dark, fontSize: 18, fontWeight: "700" },
-  workoutMeta: { color: Colors.muted, fontSize: 13, marginTop: 2 },
-  divider: { height: 1, backgroundColor: Colors.gray, marginVertical: 14 },
-  actions: { flexDirection: "row", gap: 10 },
-  startButton: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    backgroundColor: Colors.primary,
-    paddingVertical: 13,
-    borderRadius: 12,
-  },
-  startButtonText: { color: Colors.white, fontWeight: "700", fontSize: 15 },
-  newWorkoutButton: {
-    paddingHorizontal: 18,
-    paddingVertical: 13,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: Colors.borderAlt,
-    justifyContent: "center",
-  },
-  newWorkoutText: { color: Colors.mutedMedium, fontWeight: "600", fontSize: 14 },
-});

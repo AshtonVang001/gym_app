@@ -1,8 +1,9 @@
-import { ScrollView, View, Text, Pressable, StyleSheet } from "react-native";
+import { ScrollView, View, Text, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack, router } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { Colors } from "@/constants/theme";
+import { dashboardStyles as styles } from "@/constants/dashboardStyles";
 import QuickStart from "@/components/dashboard/QuickStart";
 import PhysiqueScannerCard from "@/components/dashboard/PhysiqueScannerCard";
 import WeeklyProgress from "@/components/dashboard/WeeklyProgress";
@@ -85,48 +86,3 @@ export default function Dashboard() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: Colors.background },
-  logoutButton: { padding: 4 },
-  scrollView: { flex: 1 },
-  content: { padding: 20, paddingBottom: 48 },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 28,
-    marginTop: 8,
-  },
-  headerRight: { flexDirection: "row", alignItems: "center", gap: 10 },
-  greeting: { color: Colors.muted, fontSize: 14 },
-  name: { color: Colors.dark, fontSize: 26, fontWeight: "700" },
-  iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.white,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.avatarBg,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: Colors.borderAlt,
-  },
-  placeholder: {
-    color: Colors.mutedLight,
-    fontSize: 14,
-    textAlign: "center",
-    paddingVertical: 8,
-  },
-});

@@ -18,3 +18,13 @@ export const Colors = {
   gray: "#f0f0f0",
   avatarBg: "#e8edf5",
 };
+
+export const Shadows = {
+  card: {
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+} as const;

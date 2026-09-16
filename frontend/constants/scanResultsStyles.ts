@@ -1,13 +1,5 @@
 import { StyleSheet } from "react-native";
-import { Colors } from "./theme";
-
-const cardShadow = {
-  shadowColor: "#000",
-  shadowOpacity: 0.05,
-  shadowRadius: 4,
-  shadowOffset: { width: 0, height: 2 },
-  elevation: 2,
-} as const;
+import { Colors, Shadows } from "./theme";
 
 export const scanResultsStyles = StyleSheet.create({
   screen: {
@@ -57,7 +49,7 @@ export const scanResultsStyles = StyleSheet.create({
     borderRadius: 16,
     padding: 18,
     gap: 8,
-    ...cardShadow,
+    ...Shadows.card,
   },
   cardLabel: {
     color: Colors.muted,

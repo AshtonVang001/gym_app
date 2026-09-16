@@ -58,9 +58,9 @@ export default function LoginForm() {
       </View>
 
       <View style={formStyles.flexRow}>
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
-          <Text style={{ fontSize: 16 }}>☐</Text>
-          <Text style={{ fontSize: 14, color: "black", fontWeight: "400" }}>Remember me</Text>
+        <View style={formStyles.rememberMeRow}>
+          <Text style={formStyles.checkboxIcon}>☐</Text>
+          <Text style={formStyles.rememberMeText}>Remember me</Text>
         </View>
         <Pressable>
           <Text style={formStyles.span}>Forgot password?</Text>
