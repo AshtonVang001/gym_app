@@ -78,7 +78,7 @@ export default function LoginForm() {
       </Pressable>
 
       <Text style={formStyles.p}>
-        Don't have an account?{" "}
+         Don&apos;t have an account?{" "}
         <Text style={formStyles.span} onPress={() => router.push("/create-account")}>
           Sign Up
         </Text>
