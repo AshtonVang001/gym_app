@@ -1,0 +1,6 @@
+process.env.ACCESS_SECRET = 'test-access-secret-key'
+process.env.IP_ADDRESS = 'localhost'
+process.env.DB_HOST = 'localhost'
+process.env.DB_USER = 'test'
+process.env.DB_PASSWORD = 'test'
+process.env.DB_NAME = 'testdb'

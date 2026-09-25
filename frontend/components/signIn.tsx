@@ -1,32 +1,39 @@
-import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
+import { View, Text, TextInput, Pressable } from "react-native";
 import { router } from "expo-router";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { formStyles } from "@/constants/formStyles";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { login } = useAuth();
 
   const handleSubmit = async () => {
+    setError(null);
+    setIsLoading(true);
     try {
       await login(email, password);
-      router.replace("/pages/dashboard");
-    } catch (error) {
-      console.log("Login failed", error);
+      router.replace("/dashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <View style={styles.form}>
-      <View style={styles.flexColumn}>
-        <Text style={styles.label}>Email</Text>
+    <View style={formStyles.form}>
+      <View style={formStyles.flexColumn}>
+        <Text style={formStyles.label}>Email</Text>
       </View>
 
-      <View style={styles.inputForm}>
+      <View style={formStyles.inputForm}>
         <TextInput
-          style={styles.input}
+          style={formStyles.input}
           placeholder="Enter your Email"
           placeholderTextColor="#999"
           value={email}
@@ -35,13 +42,13 @@ export default function LoginForm() {
         />
       </View>
 
-      <View style={styles.flexColumn}>
-        <Text style={styles.label}>Password</Text>
+      <View style={formStyles.flexColumn}>
+        <Text style={formStyles.label}>Password</Text>
       </View>
 
-      <View style={styles.inputForm}>
+      <View style={formStyles.inputForm}>
         <TextInput
-          style={styles.input}
+          style={formStyles.input}
           placeholder="Enter your Password"
           placeholderTextColor="#999"
           secureTextEntry
@@ -50,149 +57,43 @@ export default function LoginForm() {
         />
       </View>
 
-      <View style={styles.flexRow}>
-        <View style={styles.rememberRow}>
-          <Text style={styles.checkbox}>☐</Text>
-          <Text style={styles.rememberText}>Remember me</Text>
+      <View style={formStyles.flexRow}>
+        <View style={formStyles.rememberMeRow}>
+          <Text style={formStyles.checkboxIcon}>☐</Text>
+          <Text style={formStyles.rememberMeText}>Remember me</Text>
         </View>
-
         <Pressable>
-          <Text style={styles.span}>Forgot password?</Text>
+          <Text style={formStyles.span}>Forgot password?</Text>
         </Pressable>
       </View>
 
-      <Pressable style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitText}>Sign In</Text>
+      {error && <Text style={formStyles.errorText}>{error}</Text>}
+
+      <Pressable
+        style={[formStyles.submitButton, isLoading && formStyles.submitButtonDisabled]}
+        onPress={handleSubmit}
+        disabled={isLoading}
+      >
+        <Text style={formStyles.submitText}>{isLoading ? "Signing in..." : "Sign In"}</Text>
       </Pressable>
 
-      <Text style={styles.p}>
+      <Text style={formStyles.p}>
         Don't have an account?{" "}
-        <Text
-          style={styles.span}
-          onPress={() => router.push("/pages/createAccountPage")}
-        >
+        <Text style={formStyles.span} onPress={() => router.push("/create-account")}>
           Sign Up
         </Text>
       </Text>
 
-      <Text style={styles.p}>Or With</Text>
+      <Text style={formStyles.p}>Or With</Text>
 
-      <View style={styles.flexRow}>
-        <Pressable style={styles.btn}>
-          <Text style={styles.btnText}>Google</Text>
+      <View style={formStyles.flexRow}>
+        <Pressable style={formStyles.btn}>
+          <Text style={formStyles.btnText}>Google</Text>
         </Pressable>
-
-        <Pressable style={styles.btn}>
-          <Text style={styles.btnText}>Apple</Text>
+        <Pressable style={formStyles.btn}>
+          <Text style={formStyles.btnText}>Apple</Text>
         </Pressable>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  form: {
-    flexDirection: "column",
-    gap: 10,
-    backgroundColor: "#ffffff",
-    padding: 30,
-    width: "100%",
-    maxWidth: 450,
-    borderRadius: 20,
-  },
-
-  flexColumn: {
-    flexDirection: "column",
-  },
-
-  label: {
-    color: "#151717",
-    fontWeight: "600",
-  },
-
-  inputForm: {
-    borderWidth: 1.5,
-    borderColor: "#ecedec",
-    borderRadius: 10,
-    height: 50,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingLeft: 10,
-  },
-
-  input: {
-    marginLeft: 10,
-    borderRadius: 10,
-    width: "85%",
-    height: "100%",
-  },
-
-  flexRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    justifyContent: "space-between",
-  },
-
-  rememberRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-  },
-
-  checkbox: {
-    fontSize: 16,
-  },
-
-  rememberText: {
-    fontSize: 14,
-    color: "black",
-    fontWeight: "400",
-  },
-
-  span: {
-    fontSize: 14,
-    color: "#2d79f3",
-    fontWeight: "500",
-  },
-
-  submitButton: {
-    marginTop: 20,
-    marginBottom: 10,
-    backgroundColor: "#151717",
-    borderRadius: 10,
-    height: 50,
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  submitText: {
-    color: "white",
-    fontSize: 15,
-    fontWeight: "500",
-  },
-
-  p: {
-    textAlign: "center",
-    color: "black",
-    fontSize: 14,
-    marginVertical: 5,
-  },
-
-  btn: {
-    marginTop: 10,
-    width: "48%",
-    height: 50,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ededef",
-    backgroundColor: "white",
-  },
-
-  btnText: {
-    fontWeight: "500",
-  },
-});

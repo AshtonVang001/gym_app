@@ -1,0 +1,30 @@
+import { Hono } from "hono";
+import { dbConfig } from "../../api/dbconnect.js";
+import crypto from "crypto";
+import logger from "../../utils/logger.js";
+
+export const logoutRoutes = new Hono();
+
+logoutRoutes.post("/logout", async (c) => {
+  try {
+    const { refreshToken } = await c.req.json();
+
+    if (!refreshToken) {
+      return c.json({ success: false, message: "No token provided" }, 400);
+    }
+
+    const hashedRefresh = crypto
+      .createHash("sha256")
+      .update(refreshToken)
+      .digest("hex");
+
+    await dbConfig`DELETE FROM refresh_tokens WHERE token_hash = ${hashedRefresh}`;
+
+    logger.info("logout successful");
+
+    return c.json({ success: true, message: "Logged out successfully" });
+  } catch (error) {
+    logger.error({ err: error }, "logout error");
+    return c.json({ success: false, message: `Error: ${error}` }, 500);
+  }
+});

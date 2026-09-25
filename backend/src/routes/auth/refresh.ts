@@ -1,0 +1,91 @@
+import { Hono } from "hono";
+import { dbConfig } from "../../api/dbconnect.js";
+import { sign } from "hono/jwt";
+import crypto from "crypto";
+import "dotenv/config";
+import logger from "../../utils/logger.js";
+
+export const refreshRoutes = new Hono();
+
+refreshRoutes.post("/refresh", async (c) => {
+  try {
+    const { refreshToken, deviceInfo } = await c.req.json();
+
+    //check if refresh token exists
+    if (!refreshToken) {
+      return c.json({ success: false, message: "No token provided" }, 400);
+    }
+
+    const hashedRefresh = crypto
+      .createHash("sha256")
+      .update(refreshToken)
+      .digest("hex");
+
+    const ID =
+      await dbConfig`SELECT user_id, family_id FROM refresh_tokens WHERE token_hash = ${hashedRefresh} AND revoked = false AND expires_at > NOW()`;
+
+    if (ID.length === 0) {
+      logger.warn("refresh failed: token not found, expired, or revoked");
+      return c.json({ success: false, message: "Invalid token" }, 401);
+    }
+
+    const user =
+      await dbConfig`SELECT id, username, role FROM users WHERE id = ${ID[0].user_id}`;
+
+    //create new access token
+    const accessPayload = {
+      sub: user[0].username,
+      role: user[0].role,
+      exp: Math.floor(Date.now() / 1000) + 60 * 15, //15 minutes
+    };
+
+    const secret = process.env.ACCESS_SECRET!;
+
+    const accessToken = await sign(accessPayload, secret);
+
+    const newRefreshToken = crypto.randomBytes(64).toString("hex");
+
+    const newHashedRefresh = crypto
+      .createHash("sha256")
+      .update(newRefreshToken)
+      .digest("hex");
+
+    const exp = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); //expiration of refresh
+
+    const currentDate: Date = new Date();
+
+    //revoke current refresh token
+    await dbConfig`UPDATE refresh_tokens
+    SET revoked_at = ${currentDate}, revoked = true
+    WHERE token_hash = ${hashedRefresh}`;
+
+    //insert new token into db w same family id
+    await dbConfig`INSERT INTO refresh_tokens (user_id, expires_at, created_at, token_hash, device_info, family_id, last_used_at, revoked)
+    VALUES (${user[0].id}, ${exp}, ${currentDate}, ${newHashedRefresh}, ${deviceInfo}, ${ID[0].family_id}, ${currentDate}, false)`;
+
+    logger.info(
+      { userId: user[0].id, username: user[0].username },
+      "token refreshed",
+    );
+
+    return c.json({
+      success: true,
+      message: "Successfully created new refresh token!",
+      user: {
+        id: user[0].id,
+        username: user[0].username,
+      },
+      accessToken: accessToken,
+      refreshToken: newRefreshToken,
+    });
+  } catch (error) {
+    logger.error({ err: error }, "token refresh error");
+    return c.json(
+      {
+        success: false,
+        message: `Could not create new token: ${error}`,
+      },
+      500,
+    );
+  }
+});

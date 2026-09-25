@@ -1,0 +1,63 @@
+import { Hono } from "hono";
+import { dbConfig } from "../../api/dbconnect.js";
+import { createTokens } from "../../utils/createTokens.js";
+import * as bcrypt from "bcrypt";
+import "dotenv/config";
+import logger from "../../utils/logger.js";
+
+export const createAccountRoutes = new Hono(); 
+
+createAccountRoutes.post("/register", async (c) => {
+  const saltRounds = 10;
+
+  try {
+    const { username, email, password, deviceInfo } = await c.req.json();
+
+    if (!username?.trim() || !email?.trim() || !password?.trim()) {
+      return c.json(
+        {
+          success: false,
+          message: "Username, email, and password are required.",
+        },
+        400,
+      );
+    }
+
+    const hashedPassowrd = await bcrypt.hash(password, saltRounds);
+
+    //fix this later rn some of the columns are not the correct data - like online status and what not
+    //right now role is hardcoded
+    const user =
+      await dbConfig`INSERT INTO users (username, email, password, role, email_verified, status, profile_completed)
+                VALUES (${username}, ${email}, ${hashedPassowrd}, 'user', ${false}, 'online', ${false})
+                RETURNING id, username, email, role, created_at`;
+
+    const { accessToken, refreshToken } = await createTokens(user, deviceInfo);
+
+    logger.info({ userId: user[0].id, username: user[0].username }, "account created");
+
+    return c.json(
+      {
+        success: true,
+        message: "Account created successfully!",
+        user: {
+          id: user[0].id,
+          username: user[0].username,
+          email: user[0].email,
+        },
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      },
+      201,
+    );
+  } catch (error) {
+    logger.error({ err: error }, "account creation failed");
+    return c.json(
+      {
+        success: false,
+        message: `Account creation failed. Error: ${error}`,
+      },
+      500,
+    );
+  }
+});
